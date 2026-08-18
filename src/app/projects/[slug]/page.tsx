@@ -15,34 +15,53 @@ export const revalidate = 3600; // Revalidate every hour
 
 // Generate static params for build-time static site optimization
 export async function generateStaticParams() {
-  const projects = await getProjects();
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
+  try {
+    const projects = await getProjects();
+    return projects.map((project) => ({
+      slug: project.slug,
+    }));
+  } catch (error) {
+    console.warn("Failed to generate static params at build-time:", error);
+    return [];
+  }
 }
 
 // Generate page-specific metadata dynamically
 export async function generateMetadata({ params }: ProjectDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  try {
+    const project = await getProjectBySlug(slug);
 
-  if (!project) {
+    if (!project) {
+      return constructMetadata({
+        title: "Project Not Found",
+        description: "The requested project details could not be found.",
+      });
+    }
+
     return constructMetadata({
-      title: "Project Not Found",
-      description: "The requested project details could not be found.",
+      title: project.title,
+      description: project.description,
+      image: project.coverImage,
+    });
+  } catch (error) {
+    console.error("Failed to fetch metadata for project:", error);
+    return constructMetadata({
+      title: "Project details",
+      description: "Explore our premium hospitality advisory projects.",
     });
   }
-
-  return constructMetadata({
-    title: project.title,
-    description: project.description,
-    image: project.coverImage,
-  });
 }
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  let project = null;
+
+  try {
+    project = await getProjectBySlug(slug);
+  } catch (error) {
+    console.error("Failed to fetch project details at render-time:", error);
+  }
 
   if (!project) {
     notFound();

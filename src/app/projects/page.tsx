@@ -1,11 +1,17 @@
 import React from "react";
 import { getProjects } from "@/lib/services/projects";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
+import { Project as ProjectType } from "@/types/project";
 
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function ProjectsPage() {
-  const projects = await getProjects();
+  let projects: ProjectType[] = [];
+  try {
+    projects = await getProjects();
+  } catch (error) {
+    console.error("Failed to fetch projects at render-time:", error);
+  }
 
   return (
     <main className="min-h-screen py-32 px-6 md:px-12 lg:px-24 bg-black text-white">
