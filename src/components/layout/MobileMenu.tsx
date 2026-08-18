@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useUiStore } from "@/store/ui.store";
 import { navItems } from "@/data/navigation";
@@ -8,6 +8,24 @@ import { AnimatePresence, motion } from "motion/react";
 
 export function MobileMenu() {
   const { isMenuOpen, closeMenu } = useUiStore();
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeMenu();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen, closeMenu]);
 
   const menuVariants = {
     initial: {
