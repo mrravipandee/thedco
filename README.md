@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# THE DCO — Premium Hospitality Advisory
 
-## Getting Started
+A production-ready, high-end cinematic website designed and built for **THE DCO**, a luxury hospitality advisory firm. THE DCO delivers bespoke strategy, operational auditing, and concept-to-launch support for elite hotels, resorts, fine-dining restaurants, and food service businesses.
 
-First, run the development server:
+---
+
+## 🏛️ Brand Identity & Aesthetics
+
+THE DCO interface is built with an elegant, editorial, and minimal style closer to premium architecture portfolios and high-end design magazines than ordinary SaaS products.
+
+* **Primary Accent (Gold)**: `#C9A24A` (Used sparingly for refined details, borders, and active highlights)
+* **Dark Mode Core**: `#000000` (Prevalent canvas background)
+* **Typography**:
+  - **Display / Headings**: `Cormorant Garamond` (Elegant, traditional editorial serif)
+  - **Body / Interfaces**: `Manrope` (Clean, legible geometric sans-serif)
+
+---
+
+## ⚡ Tech Stack
+
+* **Core**: Next.js (App Router, React 19) + TypeScript
+* **Styling**: Tailwind CSS v4 (incorporating `@theme` variables inside `globals.css`)
+* **State Management**: Zustand
+* **Database**: MongoDB + Mongoose ODM (incorporating serverless connection caching)
+* **Validation**: React Hook Form + Zod
+* **Animation Suite**:
+  - **GSAP (GreenSock)** & `@gsap/react` for advanced timelines and ScrollTrigger scrolling progressions.
+  - **Motion (Framer Motion)** for staggered mobile menu entry, page overlays, buttons, and micro-hover states.
+  - **Lenis** for smooth scroll damping.
+* **Asset Loading**: Optimized layouts utilizing `next/image` with custom clip-mask reveal containers.
+
+---
+
+## 📂 Project Architecture
+
+```
+public/
+  images/
+    hero/           # Cinematic background images
+    services/       # Section service details
+    general/        # Layout and branding visual assets
+
+src/
+  app/              # Next.js App Router Page layouts
+    about/
+    services/
+    projects/
+    contact/
+    api/            # Dynamic route endpoints
+      contact/
+      enquiries/
+      projects/
+
+  components/       # Reusable layout and ui units
+    ui/             # Button, MagneticButton, Container, etc.
+    layout/         # Translucent Navbar, MobileMenu, Footer
+    home/           # Section modules (S1 - S8)
+    animations/     # GSAP & Motion reveal primitives
+    forms/          # Form validations and loaders
+
+  lib/              # Mongoose DB config, utility CN hooks, validations
+  models/           # Mongoose Database models (Project, Enquiry, etc.)
+  store/            # Zustand global state stores
+  hooks/            # useMediaQuery, useReducedMotion hooks
+  data/             # Navigation links, services configs
+  types/            # TS shared interface configurations
+  config/           # Site configuration and constructMetadata SEO helper
+```
+
+---
+
+## ⚙️ Getting Started
+
+### 1. Installation
+
+Install all required production dependencies:
+
+```bash
+npm install
+```
+
+### 2. Configure Environment Variables
+
+Create a `.env` file in the root directory (based on `.env.example`):
+
+```env
+MONGODB_URI=your-mongodb-connection-string
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### 3. Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Your local build is now available at [http://localhost:3000](http://localhost:3000) (or the port indicated in the terminal log).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧱 Production Compilation & QA
 
-## Learn More
+To ensure the build satisfies static optimization parameters and runs without warnings, verify using:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Verify TypeScript Type Safety
+npx tsc --noEmit
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Verify ESLint rules
+npm run lint
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Compile optimized server build
+npm run build
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ♿ Accessibility & Performance
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **Prefers Reduced Motion**: When system settings dictate reduced motion, the primitive timeline hooks automatically scale animation durations to `0` and fallback to simple instant opacity states.
+* **LCP & CLS Targets**: Dynamic images use Next.js `next/image` sizes to ensure responsive layout shift metrics remain under standard Google Core Web Vitals parameters.
