@@ -89,7 +89,7 @@ export function ServicesPreview() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-16">
         
         {/* Left: Sticky Block (Desktop only) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-32 lg:h-[70vh] flex flex-col justify-between space-y-12">
+        <div className="lg:col-span-5 lg:sticky lg:top-32 lg:h-fit self-start flex flex-col justify-between space-y-12">
           <div className="space-y-6">
             <span className="text-xs uppercase tracking-[0.3em] text-primary">
               SECTION 3 — WHAT WE OFFER

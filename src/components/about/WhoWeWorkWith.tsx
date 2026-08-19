@@ -91,7 +91,7 @@ export function WhoWeWorkWith() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
           {/* Left Column: Heading */}
-          <div ref={headingRef} className="lg:col-span-4 lg:sticky lg:top-32 space-y-4">
+          <div ref={headingRef} className="lg:col-span-4 lg:sticky lg:top-32 self-start space-y-4">
             <span className="text-xs uppercase tracking-[0.3em] text-primary block font-semibold">
               PARTNERSHIP
             </span>
