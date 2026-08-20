@@ -43,11 +43,13 @@ async function setAdminRole(role: "admin" | "editor") {
 }
 
 // Helper to append a unique IP per run for stateless rate limit testing
-function fetchWithIp(url: string, options: any = {}) {
-  options.headers = options.headers || {};
-  if (!options.headers["x-forwarded-for"]) {
-    options.headers["x-forwarded-for"] = RUN_IP;
+function fetchWithIp(url: string, options: RequestInit = {}) {
+  const opts = options as Record<string, unknown>;
+  const headers = (opts.headers || {}) as Record<string, string>;
+  if (!headers["x-forwarded-for"]) {
+    headers["x-forwarded-for"] = RUN_IP;
   }
+  opts.headers = headers;
   return fetch(url, options);
 }
 
@@ -123,7 +125,7 @@ async function runFlowTests() {
         message: "Valid test message for bad email check.",
       }),
     });
-    const body = await res.json();
+    await res.json();
     console.log("Status:", res.status);
     if (res.status !== 422) throw new Error("Expected 422 due to bad email validation");
     console.log("PASS ✅\n");
@@ -132,7 +134,7 @@ async function runFlowTests() {
   // D. Contact rate limiting
   {
     console.log("TEST 1.D: Checking Contact Rate Limiting (5 requests per 10 mins)...");
-    let statuses: number[] = [];
+    const statuses: number[] = [];
     const floodIp = `200.200.200.${Math.floor(Math.random() * 250) + 1}`;
     for (let i = 0; i < 6; i++) {
       const res = await fetchWithIp(`${BASE_URL}/api/enquiries`, {
@@ -211,7 +213,7 @@ async function runFlowTests() {
     });
     const enquiryListBody = await enquiryListRes.json();
     console.log("Status:", enquiryListRes.status);
-    const match = enquiryListBody.data.find((e: any) => e.id === tempEnquiryId);
+    const match = enquiryListBody.data.find((e: { id: string; status: string }) => e.id === tempEnquiryId);
     if (!match || match.status !== "new") {
       throw new Error("Submitted enquiry not found in admin list or missing default status 'new'");
     }
@@ -283,7 +285,7 @@ async function runFlowTests() {
     console.log("TEST 3.B: Checking public listing for draft blog...");
     const listRes = await fetchWithIp(`${BASE_URL}/api/blogs`);
     const listBody = await listRes.json();
-    const foundInPublicList = listBody.data.some((b: any) => b.id === blogId);
+    const foundInPublicList = listBody.data.some((b: { id: string }) => b.id === blogId);
     console.log("Found in public list:", foundInPublicList);
     if (foundInPublicList) throw new Error("Draft blog appeared in public listing");
     console.log("PASS ✅\n");
@@ -314,7 +316,7 @@ async function runFlowTests() {
     console.log("TEST 3.E: Checking public list for published blog...");
     const pubListRes = await fetchWithIp(`${BASE_URL}/api/blogs`);
     const pubListBody = await pubListRes.json();
-    const foundInPubList = pubListBody.data.some((b: any) => b.id === blogId);
+    const foundInPubList = pubListBody.data.some((b: { id: string }) => b.id === blogId);
     console.log("Found in public list:", foundInPubList);
     if (!foundInPubList) throw new Error("Published blog not found in public listing");
     console.log("PASS ✅\n");
@@ -339,7 +341,7 @@ async function runFlowTests() {
     // Verify archived blog is excluded from public endpoints
     const archPubListRes = await fetchWithIp(`${BASE_URL}/api/blogs`);
     const archPubListBody = await archPubListRes.json();
-    if (archPubListBody.data.some((b: any) => b.id === blogId)) {
+    if (archPubListBody.data.some((b: { id: string }) => b.id === blogId)) {
       throw new Error("Archived blog still appeared in public listing");
     }
     const archSlugRes = await fetchWithIp(`${BASE_URL}/api/blogs/slug/${blogSlug}`);
@@ -385,7 +387,7 @@ async function runFlowTests() {
     console.log("TEST 4.B: Checking public list for draft case study...");
     const listRes = await fetchWithIp(`${BASE_URL}/api/case-studies`);
     const listBody = await listRes.json();
-    const foundInPublicList = listBody.data.some((c: any) => c.id === caseId);
+    const foundInPublicList = listBody.data.some((c: { id: string }) => c.id === caseId);
     console.log("Found in public list:", foundInPublicList);
     if (foundInPublicList) throw new Error("Draft case study appeared in public listing");
     console.log("PASS ✅\n");
@@ -416,7 +418,7 @@ async function runFlowTests() {
     console.log("TEST 4.E: Checking public list for published case study...");
     const pubListRes = await fetchWithIp(`${BASE_URL}/api/case-studies`);
     const pubListBody = await pubListRes.json();
-    const foundInPubList = pubListBody.data.some((c: any) => c.id === caseId);
+    const foundInPubList = pubListBody.data.some((c: { id: string }) => c.id === caseId);
     console.log("Found in public list:", foundInPubList);
     if (!foundInPubList) throw new Error("Published case study not found in public listing");
     console.log("PASS ✅\n");
@@ -441,7 +443,7 @@ async function runFlowTests() {
     // Verify archived case study is excluded from public endpoints
     const archPubListRes = await fetchWithIp(`${BASE_URL}/api/case-studies`);
     const archPubListBody = await archPubListRes.json();
-    if (archPubListBody.data.some((c: any) => c.id === caseId)) {
+    if (archPubListBody.data.some((c: { id: string }) => c.id === caseId)) {
       throw new Error("Archived case study still appeared in public listing");
     }
     const archSlugRes = await fetchWithIp(`${BASE_URL}/api/case-studies/slug/${caseSlug}`);

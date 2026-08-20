@@ -12,10 +12,18 @@ const envSchema = z.object({
     .url({ message: "NEXT_PUBLIC_SITE_URL must be a valid URL" }),
 });
 
+const isBuildTime = process.env.NEXT_PHASE === "phase-production-build";
+
+const fallbackEnv = {
+  MONGODB_URI: "mongodb://localhost:27017/thedco_fallback",
+  AUTH_SECRET: "placeholder-secret-for-build-time-safety",
+  NEXT_PUBLIC_SITE_URL: "https://thedco.com",
+};
+
 const parsed = envSchema.safeParse({
-  MONGODB_URI: process.env.MONGODB_URI,
-  AUTH_SECRET: process.env.AUTH_SECRET,
-  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  MONGODB_URI: process.env.MONGODB_URI || (isBuildTime ? fallbackEnv.MONGODB_URI : undefined),
+  AUTH_SECRET: process.env.AUTH_SECRET || (isBuildTime ? fallbackEnv.AUTH_SECRET : undefined),
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || (isBuildTime ? fallbackEnv.NEXT_PUBLIC_SITE_URL : undefined),
 });
 
 if (!parsed.success) {
