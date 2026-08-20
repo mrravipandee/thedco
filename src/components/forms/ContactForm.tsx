@@ -21,10 +21,10 @@ export function ContactForm() {
       email: "",
       phone: "",
       company: "",
-      projectType: "" as any,
+      projectType: "" as EnquiryFormData["projectType"],
       location: "",
-      projectStage: "" as any,
-      businessStatus: "" as any,
+      projectStage: "" as EnquiryFormData["projectStage"],
+      businessStatus: "" as EnquiryFormData["businessStatus"],
       message: "",
     },
   });

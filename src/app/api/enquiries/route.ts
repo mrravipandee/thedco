@@ -1,48 +1,123 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { connectToDatabase } from "@/lib/mongodb";
+import { createEnquirySchema } from "@/lib/validations/enquiry";
 import Enquiry from "@/models/Enquiry";
-import { EnquiryFormSchema } from "@/lib/validations";
+
+const allowedKeys = new Set(Object.keys(createEnquirySchema.shape));
+
+function buildValidationError(error: z.ZodError) {
+  const fields: Record<string, string> = {};
+
+  for (const issue of error.issues) {
+    const path = issue.path.length > 0 ? issue.path.join(".") : "request";
+    if (!fields[path]) {
+      fields[path] = issue.message;
+    }
+  }
+
+  return {
+    success: false,
+    error: {
+      message: "Validation failed",
+      fields,
+    },
+  };
+}
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    let payload: unknown;
 
-    // Simple Honeypot Check for Bot Abuse
-    if (body.website && body.website.trim() !== "") {
-      return NextResponse.json(
-        { success: true, message: "Enquiry received successfully." }, // Deceptive success for bots
-        { status: 200 }
-      );
-    }
-
-    // Server-side validation
-    const validation = EnquiryFormSchema.safeParse(body);
-    if (!validation.success) {
+    try {
+      payload = await req.json();
+    } catch {
       return NextResponse.json(
         {
           success: false,
-          error: "Validation failed",
-          details: validation.error.format(),
+          error: {
+            message: "Malformed request body",
+          },
         },
         { status: 400 }
       );
     }
 
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Validation failed",
+            fields: {
+              request: "Request body must be a JSON object.",
+            },
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    const body = payload as Record<string, unknown>;
+    const unknownFields = Object.keys(body).filter((key) => !allowedKeys.has(key));
+
+    if (unknownFields.length > 0) {
+      const fields: Record<string, string> = {};
+      for (const field of unknownFields) {
+        fields[field] = "Unexpected field.";
+      }
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Validation failed",
+            fields,
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    const parsed = createEnquirySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(buildValidationError(parsed.error), { status: 422 });
+    }
+
     await connectToDatabase();
 
-    // Map projectType to serviceType for database compatibility
-    const enquiryData = {
-      ...validation.data,
-      serviceType: validation.data.projectType,
-    };
+    const { name, email, phone, company, projectType, location, projectStage, message } = parsed.data;
 
-    const enquiry = await Enquiry.create(enquiryData);
+    const enquiry = await Enquiry.create({
+      name,
+      email,
+      phone,
+      company,
+      projectType,
+      location,
+      projectStage,
+      message,
+    });
 
-    return NextResponse.json({ success: true, data: enquiry }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          id: enquiry._id.toString(),
+        },
+        message: "Enquiry submitted successfully",
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("API enquiry submission error:", error);
     return NextResponse.json(
-      { success: false, error: "An unexpected error occurred." },
+      {
+        success: false,
+        error: {
+          message: "Unable to submit enquiry",
+        },
+      },
       { status: 500 }
     );
   }
