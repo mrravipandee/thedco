@@ -167,7 +167,6 @@ const BlogSchema: Schema = new Schema(
 );
 
 // Optimize sorting, status, category, and slug lookups
-BlogSchema.index({ slug: 1 }, { unique: true });
 BlogSchema.index({ status: 1 });
 BlogSchema.index({ publishedAt: -1 });
 BlogSchema.index({ category: 1 });
