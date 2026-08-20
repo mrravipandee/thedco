@@ -7,6 +7,14 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    // Simple Honeypot Check for Bot Abuse
+    if (body.website && body.website.trim() !== "") {
+      return NextResponse.json(
+        { success: true, message: "Enquiry received successfully." }, // Deceptive success for bots
+        { status: 200 }
+      );
+    }
+
     // Server-side validation
     const validation = EnquiryFormSchema.safeParse(body);
     if (!validation.success) {
@@ -22,7 +30,13 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
 
-    const enquiry = await Enquiry.create(validation.data);
+    // Map projectType to serviceType for database compatibility
+    const enquiryData = {
+      ...validation.data,
+      serviceType: validation.data.projectType,
+    };
+
+    const enquiry = await Enquiry.create(enquiryData);
 
     return NextResponse.json({ success: true, data: enquiry }, { status: 201 });
   } catch (error) {
