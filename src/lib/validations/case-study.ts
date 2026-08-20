@@ -116,7 +116,7 @@ export const createCaseStudySchema = z.object({
     .enum(CASE_STUDY_STATUSES, {
       message: "Invalid status value.",
     })
-    .default("draft"),
+    .optional(),
   publishedAt: z
     .preprocess(
       (val) => (val ? new Date(val as string) : undefined),

@@ -86,7 +86,7 @@ export const createBlogSchema = z.object({
     .enum(BLOG_STATUSES, {
       message: "Invalid status value.",
     })
-    .default("draft"),
+    .optional(),
   publishedAt: z
     .preprocess(
       (val) => (val ? new Date(val as string) : undefined),
