@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import CaseStudy from "@/models/CaseStudy";
+import { handleApiError } from "@/lib/error";
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -101,15 +102,6 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("API GET case study by slug error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process case study request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

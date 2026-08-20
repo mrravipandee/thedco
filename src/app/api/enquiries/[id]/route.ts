@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Enquiry from "@/models/Enquiry";
-import { requireAuth, requireAdmin, AuthError } from "@/lib/auth/require-auth";
+import { requireAuth, requireAdmin } from "@/lib/auth/require-auth";
 import { updateEnquirySchema } from "@/lib/validations/enquiry";
+import { handleApiError } from "@/lib/error";
 
 // Helper function to validate MongoDB ObjectId
 function isValidObjectId(id: string): boolean {
@@ -66,7 +67,7 @@ export async function GET(
       );
     }
 
-    // 4. Transform response replacing _id with id and excluding internal fields
+    // 4. Transform response replacing _id with id
     const doc = enquiry as unknown as LeanEnquiry;
     const transformed = {
       id: doc._id.toString(),
@@ -92,28 +93,7 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API GET single enquiry error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process enquiry request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -141,7 +121,7 @@ export async function PATCH(
       );
     }
 
-    // 3. Parse and validate request body
+    // 3. Parse request body
     let payload: unknown;
     try {
       payload = await req.json();
@@ -157,25 +137,12 @@ export async function PATCH(
       );
     }
 
-    const parsed = updateEnquirySchema.safeParse(payload);
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Validation failed",
-            fields: parsed.error.flatten().fieldErrors,
-          },
-        },
-        { status: 422 }
-      );
-    }
-
-    const { status } = parsed.data;
+    // 4. Validate schema inputs (throws on failure, caught by handleApiError)
+    const parsed = updateEnquirySchema.parse(payload);
 
     await connectToDatabase();
 
-    // 4. Update enquiry status in database
+    // 5. Update enquiry status in database
     const enquiry = await Enquiry.findById(id);
     if (!enquiry) {
       return NextResponse.json(
@@ -189,7 +156,7 @@ export async function PATCH(
       );
     }
 
-    enquiry.status = status;
+    enquiry.status = parsed.status;
     await enquiry.save();
 
     return NextResponse.json(
@@ -204,28 +171,7 @@ export async function PATCH(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API PATCH enquiry error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process enquiry request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -278,28 +224,6 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API DELETE enquiry error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process enquiry request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
-

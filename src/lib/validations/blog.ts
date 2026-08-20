@@ -31,7 +31,7 @@ export const seoSchema = z.object({
     .url({ message: "OG Image must be a valid URL." })
     .optional()
     .or(z.literal("")),
-});
+}).strict();
 
 export const createBlogSchema = z.object({
   title: z
@@ -59,7 +59,7 @@ export const createBlogSchema = z.object({
   coverImage: z.object({
     url: z.string().url({ message: "Cover image must be a valid URL." }),
     alt: z.string().trim().min(1, { message: "Alt text is required for the cover image." }),
-  }),
+  }).strict(),
   category: z.enum(BLOG_CATEGORIES, {
     message: "Please select a valid blog category.",
   }),
@@ -81,7 +81,7 @@ export const createBlogSchema = z.object({
       .min(1, { message: "Author name is required." })
       .max(100, { message: "Author name cannot exceed 100 characters." }),
     id: z.string().trim().optional(),
-  }),
+  }).strict(),
   status: z
     .enum(BLOG_STATUSES, {
       message: "Invalid status value.",
@@ -99,7 +99,7 @@ export const createBlogSchema = z.object({
     .min(1, { message: "Read time must be at least 1 minute." })
     .max(120, { message: "Read time cannot exceed 120 minutes." }),
   seo: seoSchema.optional(),
-});
+}).strict();
 
 export const updateBlogSchema = createBlogSchema.partial();
 

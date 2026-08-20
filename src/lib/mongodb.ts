@@ -1,5 +1,6 @@
 import "server-only";
 import mongoose from "mongoose";
+import "./env";
 
 interface MongooseCache {
   conn: typeof mongoose | null;

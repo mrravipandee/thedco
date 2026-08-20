@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import CaseStudy from "@/models/CaseStudy";
-import { requireAuth, requireAdmin, AuthError } from "@/lib/auth/require-auth";
+import { requireAuth, requireAdmin } from "@/lib/auth/require-auth";
 import { updateCaseStudySchema } from "@/lib/validations/case-study";
+import { handleApiError } from "@/lib/error";
 
 function isValidObjectId(id: string): boolean {
   return mongoose.Types.ObjectId.isValid(id);
@@ -110,28 +111,7 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API GET case study by ID error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process case study request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -175,22 +155,8 @@ export async function PATCH(
       );
     }
 
-    // 4. Validate partial updates
-    const parsed = updateCaseStudySchema.safeParse(payload);
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Validation failed",
-            fields: parsed.error.flatten().fieldErrors,
-          },
-        },
-        { status: 422 }
-      );
-    }
-
-    const updates = parsed.data;
+    // 4. Validate partial updates (throws on schema validation error)
+    const parsed = updateCaseStudySchema.parse(payload);
 
     await connectToDatabase();
 
@@ -209,8 +175,8 @@ export async function PATCH(
     }
 
     // 6. Check unique slug conflict if modified
-    if (updates.slug && updates.slug !== caseStudy.slug) {
-      const duplicate = await CaseStudy.findOne({ slug: updates.slug, _id: { $ne: id } });
+    if (parsed.slug && parsed.slug !== caseStudy.slug) {
+      const duplicate = await CaseStudy.findOne({ slug: parsed.slug, _id: { $ne: id } });
       if (duplicate) {
         return NextResponse.json(
           {
@@ -225,29 +191,29 @@ export async function PATCH(
     }
 
     // 7. Apply status changes and publishing logic
-    if (updates.status) {
-      if (updates.status === "published" && !caseStudy.publishedAt && !updates.publishedAt) {
+    if (parsed.status) {
+      if (parsed.status === "published" && !caseStudy.publishedAt && !parsed.publishedAt) {
         caseStudy.publishedAt = new Date();
       }
-      caseStudy.status = updates.status;
+      caseStudy.status = parsed.status;
     }
 
     // 8. Apply remaining validated updates
-    if (updates.title) caseStudy.title = updates.title;
-    if (updates.slug) caseStudy.slug = updates.slug;
-    if (updates.client) caseStudy.client = updates.client;
-    if (updates.location) caseStudy.location = updates.location;
-    if (updates.propertyType) caseStudy.propertyType = updates.propertyType;
-    if (updates.projectType) caseStudy.projectType = updates.projectType;
-    if (updates.overview) caseStudy.overview = updates.overview;
-    if (updates.challenge) caseStudy.challenge = updates.challenge;
-    if (updates.solution) caseStudy.solution = updates.solution;
-    if (updates.results) caseStudy.results = updates.results;
-    if (updates.services) caseStudy.services = updates.services;
-    if (updates.coverImage) caseStudy.coverImage = updates.coverImage;
-    if (updates.gallery) caseStudy.gallery = updates.gallery;
-    if (updates.publishedAt) caseStudy.publishedAt = updates.publishedAt;
-    if (updates.seo) caseStudy.seo = updates.seo;
+    if (parsed.title) caseStudy.title = parsed.title;
+    if (parsed.slug) caseStudy.slug = parsed.slug;
+    if (parsed.client) caseStudy.client = parsed.client;
+    if (parsed.location) caseStudy.location = parsed.location;
+    if (parsed.propertyType) caseStudy.propertyType = parsed.propertyType;
+    if (parsed.projectType) caseStudy.projectType = parsed.projectType;
+    if (parsed.overview) caseStudy.overview = parsed.overview;
+    if (parsed.challenge) caseStudy.challenge = parsed.challenge;
+    if (parsed.solution) caseStudy.solution = parsed.solution;
+    if (parsed.results) caseStudy.results = parsed.results;
+    if (parsed.services) caseStudy.services = parsed.services;
+    if (parsed.coverImage) caseStudy.coverImage = parsed.coverImage;
+    if (parsed.gallery) caseStudy.gallery = parsed.gallery;
+    if (parsed.publishedAt) caseStudy.publishedAt = parsed.publishedAt;
+    if (parsed.seo) caseStudy.seo = parsed.seo;
 
     await caseStudy.save();
 
@@ -265,28 +231,7 @@ export async function PATCH(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API PATCH update case study error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process case study request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -339,27 +284,6 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API DELETE case study error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process case study request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

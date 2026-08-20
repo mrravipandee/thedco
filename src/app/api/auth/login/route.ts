@@ -4,15 +4,36 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Admin from "@/models/Admin";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
+import { isRateLimited, checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { handleApiError } from "@/lib/error";
 
-const loginSchema = z.object({
-  email: z.string().trim().email().lowercase(),
-  password: z.string().min(1),
-});
+const loginSchema = z
+  .object({
+    email: z.string().trim().email().lowercase(),
+    password: z.string().min(1),
+  })
+  .strict();
 
 export async function POST(req: Request) {
+  const ip = await getClientIp();
+  const failureLimitKey = `rate-limit:login-failures:${ip}`;
+
   try {
-    // 1. Parse request body
+    // 1. Check if the IP is already rate-limited due to too many failed attempts
+    const isLimited = isRateLimited(failureLimitKey, 5, 15 * 60 * 1000); // 5 failures per 15 mins
+    if (isLimited) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Too many login attempts. Please try again later.",
+          },
+        },
+        { status: 429 }
+      );
+    }
+
+    // 2. Parse request body
     let payload: unknown;
     try {
       payload = await req.json();
@@ -28,9 +49,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Validate email and password inputs
-    const parsed = loginSchema.safeParse(payload);
-    if (!parsed.success) {
+    // 3. Strict schema validation
+    const parsed = loginSchema.parse(payload);
+    const { email, password } = parsed;
+
+    await connectToDatabase();
+
+    // 4. Find admin by normalized email
+    const admin = await Admin.findOne({ email });
+
+    // Helper to log a failed attempt before returning
+    const registerFailureAndRespond = async () => {
+      await checkRateLimit(failureLimitKey, 5, 15 * 60 * 1000);
       return NextResponse.json(
         {
           success: false,
@@ -40,52 +70,27 @@ export async function POST(req: Request) {
         },
         { status: 401 }
       );
-    }
+    };
 
-    const { email, password } = parsed.data;
-
-    // Connect to database
-    await connectToDatabase();
-
-    // 3. Find admin by normalized email
-    const admin = await Admin.findOne({ email });
-
-    // 4. Check isActive and admin presence
+    // 5. Check isActive and admin presence
     if (!admin || !admin.isActive) {
       // Equalize timing profile of login failure for non-existent users by doing a dummy comparison
       const dummyHash = "$2a$12$DMIj9Q9G8d7J/T2e7m8q5u9W3z7S2n1K1G1u1t1e1s1t1P1a1s1s1";
       await verifyPassword(password, dummyHash);
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Invalid email or password",
-          },
-        },
-        { status: 401 }
-      );
+      return registerFailureAndRespond();
     }
 
-    // 5. Verify password using bcrypt
+    // 6. Verify password using bcrypt
     const isPasswordCorrect = await verifyPassword(password, admin.passwordHash);
     if (!isPasswordCorrect) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Invalid email or password",
-          },
-        },
-        { status: 401 }
-      );
+      return registerFailureAndRespond();
     }
 
-    // 6. Update lastLoginAt
+    // 7. Update lastLoginAt on successful login
     admin.lastLoginAt = new Date();
     await admin.save();
 
-    // 7 & 8. Create secure session and set HTTP-only cookie
+    // 8. Create secure session and set HTTP-only cookie
     await createSession({
       id: admin._id.toString(),
       name: admin.name,
@@ -109,16 +114,6 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("API login error:", error);
-    // Generic 500 response, avoiding leaks of database details or stack traces
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Internal server error",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

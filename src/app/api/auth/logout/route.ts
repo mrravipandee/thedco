@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { destroySession } from "@/lib/auth/session";
+import { handleApiError } from "@/lib/error";
 
 export async function POST() {
   try {
@@ -12,15 +13,6 @@ export async function POST() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("API logout error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Internal server error",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

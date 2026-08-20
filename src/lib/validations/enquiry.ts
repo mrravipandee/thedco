@@ -48,7 +48,7 @@ export const createEnquirySchema = z.object({
   website: z
     .string()
     .optional(),
-});
+}).strict();
 
 export type CreateEnquiryInput = z.infer<typeof createEnquirySchema>;
 
@@ -58,7 +58,7 @@ export const updateEnquirySchema = z.object({
   status: z.enum(ENQUIRY_STATUSES, {
     message: "Please select a valid status.",
   }),
-});
+}).strict();
 
 export type UpdateEnquiryInput = z.infer<typeof updateEnquirySchema>;
 

@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Blog from "@/models/Blog";
-import { requireAuth, requireAdmin, AuthError } from "@/lib/auth/require-auth";
+import { requireAuth, requireAdmin } from "@/lib/auth/require-auth";
 import { updateBlogSchema } from "@/lib/validations/blog";
+import { handleApiError } from "@/lib/error";
 
 // Helper function to validate MongoDB ObjectId
 function isValidObjectId(id: string): boolean {
@@ -103,28 +104,7 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API GET blog by ID error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process blog request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -168,22 +148,8 @@ export async function PATCH(
       );
     }
 
-    // 4. Validate partial data
-    const parsed = updateBlogSchema.safeParse(payload);
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Validation failed",
-            fields: parsed.error.flatten().fieldErrors,
-          },
-        },
-        { status: 422 }
-      );
-    }
-
-    const updates = parsed.data;
+    // 4. Validate partial data (throws on schema failure)
+    const parsed = updateBlogSchema.parse(payload);
 
     await connectToDatabase();
 
@@ -202,8 +168,8 @@ export async function PATCH(
     }
 
     // 6. Check unique slug conflict if modified
-    if (updates.slug && updates.slug !== blog.slug) {
-      const duplicate = await Blog.findOne({ slug: updates.slug, _id: { $ne: id } });
+    if (parsed.slug && parsed.slug !== blog.slug) {
+      const duplicate = await Blog.findOne({ slug: parsed.slug, _id: { $ne: id } });
       if (duplicate) {
         return NextResponse.json(
           {
@@ -218,25 +184,25 @@ export async function PATCH(
     }
 
     // 7. Apply status changes and publishing logic
-    if (updates.status) {
-      if (updates.status === "published" && !blog.publishedAt && !updates.publishedAt) {
+    if (parsed.status) {
+      if (parsed.status === "published" && !blog.publishedAt && !parsed.publishedAt) {
         blog.publishedAt = new Date();
       }
-      blog.status = updates.status;
+      blog.status = parsed.status;
     }
 
     // 8. Apply remaining validated updates
-    if (updates.title) blog.title = updates.title;
-    if (updates.slug) blog.slug = updates.slug;
-    if (updates.excerpt) blog.excerpt = updates.excerpt;
-    if (updates.content) blog.content = updates.content;
-    if (updates.coverImage) blog.coverImage = updates.coverImage;
-    if (updates.category) blog.category = updates.category;
-    if (updates.tags) blog.tags = updates.tags;
-    if (updates.author) blog.author = updates.author;
-    if (updates.publishedAt) blog.publishedAt = updates.publishedAt;
-    if (updates.readTime) blog.readTime = updates.readTime;
-    if (updates.seo) blog.seo = updates.seo;
+    if (parsed.title) blog.title = parsed.title;
+    if (parsed.slug) blog.slug = parsed.slug;
+    if (parsed.excerpt) blog.excerpt = parsed.excerpt;
+    if (parsed.content) blog.content = parsed.content;
+    if (parsed.coverImage) blog.coverImage = parsed.coverImage;
+    if (parsed.category) blog.category = parsed.category;
+    if (parsed.tags) blog.tags = parsed.tags;
+    if (parsed.author) blog.author = parsed.author;
+    if (parsed.publishedAt) blog.publishedAt = parsed.publishedAt;
+    if (parsed.readTime) blog.readTime = parsed.readTime;
+    if (parsed.seo) blog.seo = parsed.seo;
 
     await blog.save();
 
@@ -254,28 +220,7 @@ export async function PATCH(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API PATCH update blog error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process blog request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -328,27 +273,6 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API DELETE blog error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process blog request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

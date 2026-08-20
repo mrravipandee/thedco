@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import mongoose from "mongoose";
+import { handleApiError } from "@/lib/error";
 
 export async function GET() {
   try {
@@ -29,15 +30,6 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Health check database connection failure:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Database connection failed",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

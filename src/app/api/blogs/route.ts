@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Blog from "@/models/Blog";
-import { requireAuth, AuthError } from "@/lib/auth/require-auth";
+import { requireAuth } from "@/lib/auth/require-auth";
 import { getSession } from "@/lib/auth/session";
 import { createBlogSchema } from "@/lib/validations/blog";
+import { paginationQuerySchema, searchQuerySchema } from "@/lib/validations/query";
 import { BLOG_STATUSES, BLOG_CATEGORIES } from "@/types/blog";
+import { handleApiError } from "@/lib/error";
 
 function escapeRegex(text: string): string {
   return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -49,27 +51,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Validate request data
-    const parsed = createBlogSchema.safeParse(payload);
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Validation failed",
-            fields: parsed.error.flatten().fieldErrors,
-          },
-        },
-        { status: 422 }
-      );
-    }
-
-    const blogData = parsed.data;
+    // 3. Strict schema validation
+    const parsed = createBlogSchema.parse(payload);
 
     await connectToDatabase();
 
     // 4. Verify slug uniqueness
-    const existingBlog = await Blog.findOne({ slug: blogData.slug });
+    const existingBlog = await Blog.findOne({ slug: parsed.slug });
     if (existingBlog) {
       return NextResponse.json(
         {
@@ -83,25 +71,25 @@ export async function POST(req: Request) {
     }
 
     // 5. Apply publishing date logic
-    let publishedAt = blogData.publishedAt;
-    if (blogData.status === "published" && !publishedAt) {
+    let publishedAt = parsed.publishedAt;
+    if (parsed.status === "published" && !publishedAt) {
       publishedAt = new Date();
     }
 
     // 6. Create blog post
     const blog = await Blog.create({
-      title: blogData.title,
-      slug: blogData.slug,
-      excerpt: blogData.excerpt,
-      content: blogData.content,
-      coverImage: blogData.coverImage,
-      category: blogData.category,
-      tags: blogData.tags,
-      author: blogData.author,
-      status: blogData.status,
+      title: parsed.title,
+      slug: parsed.slug,
+      excerpt: parsed.excerpt,
+      content: parsed.content,
+      coverImage: parsed.coverImage,
+      category: parsed.category,
+      tags: parsed.tags,
+      author: parsed.author,
+      status: parsed.status,
       publishedAt,
-      readTime: blogData.readTime,
-      seo: blogData.seo,
+      readTime: parsed.readTime,
+      seo: parsed.seo,
     });
 
     return NextResponse.json(
@@ -117,28 +105,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API POST create blog error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process blog request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -149,15 +116,15 @@ export async function GET(req: Request) {
     const session = await getSession();
     const isAdmin = !!session;
 
-    const { searchParams } = new URL(req.url);
-    const pageParam = parseInt(searchParams.get("page") || "1", 10);
-    const limitParam = parseInt(searchParams.get("limit") || "12", 10);
-    const statusParam = searchParams.get("status");
-    const categoryParam = searchParams.get("category");
-    const searchParam = searchParams.get("search");
+    const url = new URL(req.url);
+    const queryParams = Object.fromEntries(url.searchParams.entries());
 
-    const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
-    const limit = isNaN(limitParam) || limitParam < 1 ? 12 : Math.min(limitParam, 100);
+    // 2. Validate page & limit bounds
+    const { page, limit } = paginationQuerySchema.parse(queryParams);
+
+    const statusParam = url.searchParams.get("status");
+    const categoryParam = url.searchParams.get("category");
+    const searchParam = url.searchParams.get("search");
 
     // Build DB Query conditions
     const query: {
@@ -166,7 +133,7 @@ export async function GET(req: Request) {
       $or?: Array<Record<string, RegExp>>;
     } = {};
 
-    // 2. Enforce visibility permissions (public sees only published)
+    // 3. Enforce visibility permissions (public sees only published)
     if (!isAdmin) {
       query.status = "published";
     } else if (statusParam) {
@@ -185,7 +152,7 @@ export async function GET(req: Request) {
       query.status = statusParam;
     }
 
-    // 3. Category filter validation
+    // 4. Category filter validation
     if (categoryParam) {
       if (!BLOG_CATEGORIES.includes(categoryParam as (typeof BLOG_CATEGORIES)[number])) {
         return NextResponse.json(
@@ -201,8 +168,9 @@ export async function GET(req: Request) {
       query.category = categoryParam;
     }
 
-    // 4. Safe Search
+    // 5. Validate search length
     if (searchParam) {
+      searchQuerySchema.parse(searchParam);
       const truncated = searchParam.trim().substring(0, 50);
       if (truncated) {
         const escaped = escapeRegex(truncated);
@@ -270,15 +238,6 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("API GET list blogs error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process blog request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

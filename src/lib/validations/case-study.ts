@@ -35,7 +35,7 @@ export const createCaseStudySchema = z.object({
       .max(100, { message: "Industry description cannot exceed 100 characters." })
       .optional()
       .or(z.literal("")),
-  }),
+  }).strict(),
   location: z
     .string()
     .trim()
@@ -81,7 +81,7 @@ export const createCaseStudySchema = z.object({
           .max(300, { message: "Description cannot exceed 300 characters." })
           .optional()
           .or(z.literal("")),
-      })
+      }).strict()
     )
     .max(10, { message: "You can specify at most 10 results metrics." })
     .optional()
@@ -97,7 +97,7 @@ export const createCaseStudySchema = z.object({
       .trim()
       .min(1, { message: "Alt text is required for the cover image." })
       .max(200, { message: "Alt text cannot exceed 200 characters." }),
-  }),
+  }).strict(),
   gallery: z
     .array(
       z.object({
@@ -107,7 +107,7 @@ export const createCaseStudySchema = z.object({
           .trim()
           .min(1, { message: "Alt text is required for the gallery image." })
           .max(200, { message: "Alt text cannot exceed 200 characters." }),
-      })
+      }).strict()
     )
     .max(20, { message: "You can specify at most 20 gallery images." })
     .optional()
@@ -124,7 +124,7 @@ export const createCaseStudySchema = z.object({
     )
     .optional(),
   seo: seoSchema.optional(),
-});
+}).strict();
 
 export const updateCaseStudySchema = createCaseStudySchema.partial();
 

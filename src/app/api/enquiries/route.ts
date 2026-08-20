@@ -1,130 +1,13 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import { createEnquirySchema } from "@/lib/validations/enquiry";
+import { paginationQuerySchema, searchQuerySchema } from "@/lib/validations/query";
 import Enquiry from "@/models/Enquiry";
-import { requireAuth, AuthError } from "@/lib/auth/require-auth";
+import { requireAuth } from "@/lib/auth/require-auth";
 import { ENQUIRY_STATUSES } from "@/types/enquiry";
-
-const allowedKeys = new Set(Object.keys(createEnquirySchema.shape));
-
-function buildValidationError(error: z.ZodError) {
-  const fields: Record<string, string> = {};
-
-  for (const issue of error.issues) {
-    const path = issue.path.length > 0 ? issue.path.join(".") : "request";
-    if (!fields[path]) {
-      fields[path] = issue.message;
-    }
-  }
-
-  return {
-    success: false,
-    error: {
-      message: "Validation failed",
-      fields,
-    },
-  };
-}
-
-export async function POST(req: Request) {
-  try {
-    let payload: unknown;
-
-    try {
-      payload = await req.json();
-    } catch {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Malformed request body",
-          },
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Validation failed",
-            fields: {
-              request: "Request body must be a JSON object.",
-            },
-          },
-        },
-        { status: 422 }
-      );
-    }
-
-    const body = payload as Record<string, unknown>;
-    const unknownFields = Object.keys(body).filter((key) => !allowedKeys.has(key));
-
-    if (unknownFields.length > 0) {
-      const fields: Record<string, string> = {};
-      for (const field of unknownFields) {
-        fields[field] = "Unexpected field.";
-      }
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Validation failed",
-            fields,
-          },
-        },
-        { status: 422 }
-      );
-    }
-
-    const parsed = createEnquirySchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json(buildValidationError(parsed.error), { status: 422 });
-    }
-
-    await connectToDatabase();
-
-    const { name, email, phone, company, projectType, location, projectStage, message } = parsed.data;
-
-    const enquiry = await Enquiry.create({
-      name,
-      email,
-      phone,
-      company,
-      projectType,
-      location,
-      projectStage,
-      message,
-    });
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          id: enquiry._id.toString(),
-        },
-        message: "Enquiry submitted successfully",
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("API enquiry submission error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to submit enquiry",
-        },
-      },
-      { status: 500 }
-    );
-  }
-}
+import { handleApiError } from "@/lib/error";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 function escapeRegex(text: string): string {
   return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -146,21 +29,89 @@ interface LeanEnquiry {
   updatedAt: Date;
 }
 
+// POST /api/enquiries - Public Form Submission (Rate Limited)
+export async function POST(req: Request) {
+  try {
+    // 1. Enforce IP-based rate limit to protect against form spam
+    const ip = await getClientIp();
+    const rateLimitKey = `rate-limit:enquiry:${ip}`;
+    const limitCheck = await checkRateLimit(rateLimitKey, 5, 10 * 60 * 1000); // 5 submissions per 10 mins
+    if (!limitCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Too many enquiry submissions. Please try again later.",
+          },
+        },
+        { status: 429 }
+      );
+    }
+
+    // 2. Parse request body
+    let payload: unknown;
+    try {
+      payload = await req.json();
+    } catch {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Malformed request body",
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    // 3. Strict schema validation (rejects unknown fields via Zod strict schemas)
+    const parsed = createEnquirySchema.parse(payload);
+
+    await connectToDatabase();
+
+    // 4. Save enquiry (assigns status = "new" implicitly via mongoose default)
+    const enquiry = await Enquiry.create({
+      name: parsed.name,
+      email: parsed.email,
+      phone: parsed.phone,
+      company: parsed.company,
+      projectType: parsed.projectType,
+      location: parsed.location,
+      projectStage: parsed.projectStage,
+      businessStatus: parsed.businessStatus,
+      message: parsed.message,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          id: enquiry._id.toString(),
+        },
+        message: "Enquiry submitted successfully",
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+// GET /api/enquiries - List Submitted Enquiries (Protected: Admin/Editor)
 export async function GET(req: Request) {
   try {
-    // 1. Authenticate the user (any role: admin/editor)
+    // 1. Authenticate user
     await requireAuth();
 
-    const { searchParams } = new URL(req.url);
-    const pageParam = parseInt(searchParams.get("page") || "1", 10);
-    const limitParam = parseInt(searchParams.get("limit") || "20", 10);
-    const status = searchParams.get("status");
-    const search = searchParams.get("search");
+    const url = new URL(req.url);
+    const queryParams = Object.fromEntries(url.searchParams.entries());
 
-    const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
-    const limit = isNaN(limitParam) || limitParam < 1 ? 20 : Math.min(limitParam, 100);
+    // 2. Validate page & limit bounds
+    const { page, limit } = paginationQuerySchema.parse(queryParams);
 
-    if (status && !ENQUIRY_STATUSES.includes(status as (typeof ENQUIRY_STATUSES)[number])) {
+    // 3. Validate status query parameter
+    const statusParam = url.searchParams.get("status");
+    if (statusParam && !ENQUIRY_STATUSES.includes(statusParam as (typeof ENQUIRY_STATUSES)[number])) {
       return NextResponse.json(
         {
           success: false,
@@ -172,19 +123,25 @@ export async function GET(req: Request) {
       );
     }
 
+    // 4. Validate search length
+    const searchParam = url.searchParams.get("search");
+    if (searchParam) {
+      searchQuerySchema.parse(searchParam);
+    }
+
     const query: {
       status?: string;
       $or?: Array<Record<string, RegExp>>;
     } = {};
 
-    if (status) {
-      query.status = status;
+    if (statusParam) {
+      query.status = statusParam;
     }
 
-    if (search) {
-      const truncatedSearch = search.trim().substring(0, 50);
-      if (truncatedSearch) {
-        const escaped = escapeRegex(truncatedSearch);
+    if (searchParam) {
+      const truncated = searchParam.trim().substring(0, 50);
+      if (truncated) {
+        const escaped = escapeRegex(truncated);
         const searchRegex = new RegExp(escaped, "i");
         query.$or = [
           { name: searchRegex },
@@ -243,28 +200,6 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API GET enquiries error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process enquiry request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
-

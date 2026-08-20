@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
+import { handleApiError } from "@/lib/error";
 
 export async function GET() {
   try {
@@ -33,15 +34,6 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("API session retrieval error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Internal server error",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

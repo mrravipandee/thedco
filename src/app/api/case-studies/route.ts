@@ -2,14 +2,16 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import CaseStudy from "@/models/CaseStudy";
-import { requireAuth, AuthError } from "@/lib/auth/require-auth";
+import { requireAuth } from "@/lib/auth/require-auth";
 import { getSession } from "@/lib/auth/session";
 import { createCaseStudySchema } from "@/lib/validations/case-study";
+import { paginationQuerySchema, searchQuerySchema } from "@/lib/validations/query";
 import {
   CASE_STUDY_STATUSES,
   PROPERTY_TYPES,
   CASE_STUDY_PROJECT_TYPES,
 } from "@/types/case-study";
+import { handleApiError } from "@/lib/error";
 
 function escapeRegex(text: string): string {
   return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -53,27 +55,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Validate request data
-    const parsed = createCaseStudySchema.safeParse(payload);
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Validation failed",
-            fields: parsed.error.flatten().fieldErrors,
-          },
-        },
-        { status: 422 }
-      );
-    }
-
-    const data = parsed.data;
+    // 3. Strict schema validation (Zod throws error if invalid/unknown fields)
+    const parsed = createCaseStudySchema.parse(payload);
 
     await connectToDatabase();
 
     // 4. Verify slug uniqueness
-    const existing = await CaseStudy.findOne({ slug: data.slug });
+    const existing = await CaseStudy.findOne({ slug: parsed.slug });
     if (existing) {
       return NextResponse.json(
         {
@@ -87,29 +75,29 @@ export async function POST(req: Request) {
     }
 
     // 5. Apply publishing date logic
-    let publishedAt = data.publishedAt;
-    if (data.status === "published" && !publishedAt) {
+    let publishedAt = parsed.publishedAt;
+    if (parsed.status === "published" && !publishedAt) {
       publishedAt = new Date();
     }
 
     // 6. Create Case Study
     const caseStudy = await CaseStudy.create({
-      title: data.title,
-      slug: data.slug,
-      client: data.client,
-      location: data.location,
-      propertyType: data.propertyType,
-      projectType: data.projectType,
-      overview: data.overview,
-      challenge: data.challenge,
-      solution: data.solution,
-      results: data.results,
-      services: data.services,
-      coverImage: data.coverImage,
-      gallery: data.gallery,
-      status: data.status,
+      title: parsed.title,
+      slug: parsed.slug,
+      client: parsed.client,
+      location: parsed.location,
+      propertyType: parsed.propertyType,
+      projectType: parsed.projectType,
+      overview: parsed.overview,
+      challenge: parsed.challenge,
+      solution: parsed.solution,
+      results: parsed.results,
+      services: parsed.services,
+      coverImage: parsed.coverImage,
+      gallery: parsed.gallery,
+      status: parsed.status,
       publishedAt,
-      seo: data.seo,
+      seo: parsed.seo,
     });
 
     return NextResponse.json(
@@ -125,28 +113,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: error.message,
-          },
-        },
-        { status: error.status }
-      );
-    }
-
-    console.error("API POST create case study error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process case study request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -157,17 +124,17 @@ export async function GET(req: Request) {
     const session = await getSession();
     const isAdmin = !!session;
 
-    const { searchParams } = new URL(req.url);
-    const pageParam = parseInt(searchParams.get("page") || "1", 10);
-    const limitParam = parseInt(searchParams.get("limit") || "12", 10);
-    const statusParam = searchParams.get("status");
-    const propertyTypeParam = searchParams.get("propertyType");
-    const projectTypeParam = searchParams.get("projectType");
-    const locationParam = searchParams.get("location");
-    const searchParam = searchParams.get("search");
+    const url = new URL(req.url);
+    const queryParams = Object.fromEntries(url.searchParams.entries());
 
-    const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
-    const limit = isNaN(limitParam) || limitParam < 1 ? 12 : Math.min(limitParam, 100);
+    // 2. Validate page & limit bounds
+    const { page, limit } = paginationQuerySchema.parse(queryParams);
+
+    const statusParam = url.searchParams.get("status");
+    const propertyTypeParam = url.searchParams.get("propertyType");
+    const projectTypeParam = url.searchParams.get("projectType");
+    const locationParam = url.searchParams.get("location");
+    const searchParam = url.searchParams.get("search");
 
     // Build DB Query conditions
     const query: {
@@ -178,7 +145,7 @@ export async function GET(req: Request) {
       $or?: Array<Record<string, RegExp>>;
     } = {};
 
-    // 2. Enforce visibility permissions (public sees only published)
+    // 3. Enforce visibility permissions (public sees only published)
     if (!isAdmin) {
       query.status = "published";
     } else if (statusParam) {
@@ -197,7 +164,7 @@ export async function GET(req: Request) {
       query.status = statusParam;
     }
 
-    // 3. Property Type Filter
+    // 4. Property Type Filter
     if (propertyTypeParam) {
       if (!PROPERTY_TYPES.includes(propertyTypeParam as (typeof PROPERTY_TYPES)[number])) {
         return NextResponse.json(
@@ -213,7 +180,7 @@ export async function GET(req: Request) {
       query.propertyType = propertyTypeParam;
     }
 
-    // 4. Project Type Filter
+    // 5. Project Type Filter
     if (projectTypeParam) {
       if (!CASE_STUDY_PROJECT_TYPES.includes(projectTypeParam as (typeof CASE_STUDY_PROJECT_TYPES)[number])) {
         return NextResponse.json(
@@ -229,16 +196,17 @@ export async function GET(req: Request) {
       query.projectType = projectTypeParam;
     }
 
-    // 5. Location Filter
+    // 6. Location Filter
     if (locationParam) {
-      const escapedLoc = escapeRegex(locationParam.trim());
+      const escapedLoc = escapeRegex(locationParam.trim().substring(0, 100));
       if (escapedLoc) {
         query.location = new RegExp(escapedLoc, "i");
       }
     }
 
-    // 6. Safe Search
+    // 7. Validate search length
     if (searchParam) {
+      searchQuerySchema.parse(searchParam);
       const truncated = searchParam.trim().substring(0, 50);
       if (truncated) {
         const escaped = escapeRegex(truncated);
@@ -308,15 +276,6 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("API GET list case studies error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unable to process case study request",
-        },
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
