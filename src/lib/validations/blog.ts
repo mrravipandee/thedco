@@ -3,6 +3,36 @@ import { BLOG_STATUSES, BLOG_CATEGORIES } from "@/types/blog";
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+export const seoSchema = z.object({
+  metaTitle: z
+    .string()
+    .trim()
+    .max(60, { message: "Meta title cannot exceed 60 characters." })
+    .optional()
+    .or(z.literal("")),
+  metaDescription: z
+    .string()
+    .trim()
+    .max(160, { message: "Meta description cannot exceed 160 characters." })
+    .optional()
+    .or(z.literal("")),
+  keywords: z
+    .array(z.string().trim())
+    .max(20, { message: "You can specify at most 20 keywords." })
+    .optional()
+    .default([]),
+  canonicalUrl: z
+    .string()
+    .url({ message: "Canonical URL must be a valid URL." })
+    .optional()
+    .or(z.literal("")),
+  ogImage: z
+    .string()
+    .url({ message: "OG Image must be a valid URL." })
+    .optional()
+    .or(z.literal("")),
+});
+
 export const createBlogSchema = z.object({
   title: z
     .string()
@@ -68,37 +98,7 @@ export const createBlogSchema = z.object({
     .int({ message: "Read time must be an integer." })
     .min(1, { message: "Read time must be at least 1 minute." })
     .max(120, { message: "Read time cannot exceed 120 minutes." }),
-  seo: z
-    .object({
-      metaTitle: z
-        .string()
-        .trim()
-        .max(60, { message: "Meta title cannot exceed 60 characters." })
-        .optional()
-        .or(z.literal("")),
-      metaDescription: z
-        .string()
-        .trim()
-        .max(160, { message: "Meta description cannot exceed 160 characters." })
-        .optional()
-        .or(z.literal("")),
-      keywords: z
-        .array(z.string().trim())
-        .max(20, { message: "You can specify at most 20 keywords." })
-        .optional()
-        .default([]),
-      canonicalUrl: z
-        .string()
-        .url({ message: "Canonical URL must be a valid URL." })
-        .optional()
-        .or(z.literal("")),
-      ogImage: z
-        .string()
-        .url({ message: "OG Image must be a valid URL." })
-        .optional()
-        .or(z.literal("")),
-    })
-    .optional(),
+  seo: seoSchema.optional(),
 });
 
 export const updateBlogSchema = createBlogSchema.partial();
