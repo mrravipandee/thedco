@@ -51,3 +51,14 @@ export const createEnquirySchema = z.object({
 });
 
 export type CreateEnquiryInput = z.infer<typeof createEnquirySchema>;
+
+import { ENQUIRY_STATUSES } from "@/types/enquiry";
+
+export const updateEnquirySchema = z.object({
+  status: z.enum(ENQUIRY_STATUSES, {
+    message: "Please select a valid status.",
+  }),
+});
+
+export type UpdateEnquiryInput = z.infer<typeof updateEnquirySchema>;
+
