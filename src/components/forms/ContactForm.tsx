@@ -21,15 +21,15 @@ export function ContactForm() {
       email: "",
       phone: "",
       company: "",
-      projectType: "",
+      projectType: "" as any,
       location: "",
-      projectStage: "",
-      businessStatus: "",
+      projectStage: "" as any,
+      businessStatus: "" as any,
       message: "",
     },
   });
 
-  const onSubmit = async (data: EnquiryFormData & { website?: string }) => {
+  const onSubmit = async (data: EnquiryFormData) => {
     setSubmitStatus("loading");
 
     try {

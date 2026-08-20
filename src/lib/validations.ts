@@ -24,46 +24,6 @@ export const ContactFormSchema = z.object({
 
 export type ContactFormData = z.infer<typeof ContactFormSchema>;
 
-export const EnquiryFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: "Please enter your name." })
-    .max(100, { message: "Name cannot exceed 100 characters." }),
-  email: z
-    .string()
-    .email({ message: "Please enter a valid email address." }),
-  company: z
-    .string()
-    .max(100, { message: "Company name cannot exceed 100 characters." })
-    .optional()
-    .or(z.literal("")),
-  phone: z
-    .string()
-    .min(6, { message: "Please enter a valid phone number." })
-    .max(30, { message: "Phone number cannot exceed 30 characters." }),
-  projectType: z
-    .string()
-    .min(1, { message: "Please select a project type." }),
-  location: z
-    .string()
-    .max(100, { message: "Location cannot exceed 100 characters." })
-    .optional()
-    .or(z.literal("")),
-  projectStage: z
-    .string()
-    .optional()
-    .or(z.literal("")),
-  businessStatus: z
-    .string()
-    .optional()
-    .or(z.literal("")),
-  message: z
-    .string()
-    .min(10, { message: "Please tell us about your project (min 10 characters)." })
-    .max(2000, { message: "Message cannot exceed 2000 characters." }),
-  website: z
-    .string()
-    .optional(),
-});
-
+import { createEnquirySchema } from "./validations/enquiry";
+export const EnquiryFormSchema = createEnquirySchema;
 export type EnquiryFormData = z.infer<typeof EnquiryFormSchema>;
