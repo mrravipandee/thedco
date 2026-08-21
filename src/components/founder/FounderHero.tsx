@@ -60,7 +60,7 @@ export function FounderHero() {
   };
 
   return (
-    <section className="relative min-h-[90vh] bg-black text-white pt-36 pb-20 overflow-hidden flex items-center border-b border-white/5">
+    <section className="relative min-h-[70vh] lg:min-h-[80vh] bg-black text-white pt-36 pb-16 lg:pb-20 overflow-hidden flex items-center border-b border-white/5">
       {/* Background Subtle Elements */}
       <div className="absolute inset-0 bg-radial-gradient from-gold-50/5 via-transparent to-transparent pointer-events-none opacity-40" />
       
@@ -140,7 +140,7 @@ export function FounderHero() {
             </motion.div>
           </div>
 
-          {/* Right Column: Visual Placeholder */}
+          {/* Right Column: Typographic Executive Frame */}
           <div className="lg:col-span-5 flex justify-center">
             <motion.div
               custom={0.4}
@@ -164,19 +164,19 @@ export function FounderHero() {
                   MC
                 </span>
                 <div className="space-y-2">
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-primary font-medium">
-                    THEDCO ADVISORY
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-primary font-semibold font-sans">
+                    MANAV CHANDAK
                   </p>
-                  <p className="text-[9px] uppercase tracking-[0.2em] text-white/30">
-                    Portrait Placeholder
+                  <p className="text-[9px] uppercase tracking-[0.2em] text-white/40 font-sans">
+                    FOUNDER & ADVISOR
                   </p>
                 </div>
               </div>
 
-              {/* Footer details inside placeholder */}
-              <div className="flex justify-between items-end text-[8px] uppercase tracking-widest text-white/20">
-                <span>01 // PORTRAIT</span>
-                <span>SECURE ARCHIVE</span>
+              {/* Footer details inside frame */}
+              <div className="flex justify-between items-end text-[8px] uppercase tracking-widest text-white/30 font-mono">
+                <span>THEDCO // EXECUTIVE</span>
+                <span>EST. 2026</span>
               </div>
             </motion.div>
           </div>

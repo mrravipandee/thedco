@@ -2,38 +2,50 @@
 
 import React from "react";
 import { Divider } from "@/components/ui/Divider";
-import { Reveal } from "@/components/animations/Reveal";
+import { Reveal } from "@/components/motion/Reveal";
 
 export function ContactInfo() {
   // Verified client information
-  const email = "advisory@thedco.com";
+  const email = "hello@thedco.in";
   const location = "Based in Maharashtra. Advising hospitality businesses across India.";
   const hours = "By Appointment Only";
 
-  // Optional fields: only rendered if verified info is provided (non-placeholder)
-  const phone: string = ""; // Add verified client phone here when available
-  const whatsapp: string = ""; // Add verified client WhatsApp here when available
+  // Optional fields: only rendered if verified info is provided
+  const phone: string = ""; 
+  const whatsapp: string = ""; 
+
+  const categories = [
+    "New Hospitality Projects",
+    "Existing Businesses Requiring Improvement",
+    "Hotel Projects",
+    "Restaurant Projects",
+    "Resorts",
+    "Hospitality Investments",
+    "Operations Improvement",
+    "Profitability Improvement",
+    "Branding & Marketing Support",
+  ];
 
   return (
-    <section className="bg-black text-white py-24 relative overflow-hidden border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+    <div className="space-y-12">
+      <div className="space-y-8">
         <Reveal>
-          <span className="text-xs uppercase tracking-[0.35em] text-primary block font-semibold mb-12">
+          <span className="text-xs uppercase tracking-[0.35em] text-primary block font-semibold">
             GET IN TOUCH
           </span>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20">
+        <div className="space-y-8">
           {/* Email Block */}
           <Reveal delay={0.1}>
-            <div className="space-y-4">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block">
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block font-sans">
                 EMAIL
               </span>
               <Divider className="w-12 bg-primary/40" />
               <a
                 href={`mailto:${email}`}
-                className="text-lg md:text-2xl font-serif text-white hover:text-primary transition-colors duration-300 block py-1"
+                className="text-lg md:text-xl font-serif text-white hover:text-primary transition-colors duration-300 block py-1"
               >
                 {email}
               </a>
@@ -42,12 +54,12 @@ export function ContactInfo() {
 
           {/* Location Block */}
           <Reveal delay={0.2}>
-            <div className="space-y-4">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block">
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block font-sans">
                 LOCATION
               </span>
               <Divider className="w-12 bg-primary/40" />
-              <p className="text-sm md:text-base text-white/80 leading-relaxed font-sans font-medium">
+              <p className="text-sm text-white/80 leading-relaxed font-sans font-medium">
                 {location}
               </p>
             </div>
@@ -55,28 +67,28 @@ export function ContactInfo() {
 
           {/* Hours Block */}
           <Reveal delay={0.3}>
-            <div className="space-y-4">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block">
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block font-sans">
                 BUSINESS HOURS
               </span>
               <Divider className="w-12 bg-primary/40" />
-              <p className="text-sm md:text-base text-white/80 leading-relaxed font-sans font-medium">
+              <p className="text-sm text-white/80 leading-relaxed font-sans font-medium">
                 {hours}
               </p>
             </div>
           </Reveal>
 
-          {/* Conditionally Render Phone Block if verified info exists */}
+          {/* Conditionally Render Phone Block */}
           {phone && (
             <Reveal delay={0.4}>
-              <div className="space-y-4">
-                <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block font-sans">
                   PHONE
                 </span>
                 <Divider className="w-12 bg-primary/40" />
                 <a
                   href={`tel:${phone}`}
-                  className="text-lg md:text-2xl font-serif text-white hover:text-primary transition-colors duration-300 block py-1"
+                  className="text-lg md:text-xl font-serif text-white hover:text-primary transition-colors duration-300 block py-1"
                 >
                   {phone}
                 </a>
@@ -84,11 +96,11 @@ export function ContactInfo() {
             </Reveal>
           )}
 
-          {/* Conditionally Render WhatsApp Block if verified info exists */}
+          {/* Conditionally Render WhatsApp Block */}
           {whatsapp && (
             <Reveal delay={0.5}>
-              <div className="space-y-4">
-                <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 block font-sans">
                   WHATSAPP
                 </span>
                 <Divider className="w-12 bg-primary/40" />
@@ -96,7 +108,7 @@ export function ContactInfo() {
                   href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-lg md:text-2xl font-serif text-white hover:text-primary transition-colors duration-300 block py-1"
+                  className="text-lg md:text-xl font-serif text-white hover:text-primary transition-colors duration-300 block py-1"
                 >
                   {whatsapp}
                 </a>
@@ -105,6 +117,28 @@ export function ContactInfo() {
           )}
         </div>
       </div>
-    </section>
+
+      <Divider gold={true} className="opacity-45" />
+
+      {/* Areas of Engagement Cloud */}
+      <div className="space-y-6">
+        <Reveal>
+          <span className="text-xs uppercase tracking-[0.35em] text-primary block font-semibold">
+            AREAS OF ENGAGEMENT
+          </span>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <div className="flex flex-wrap gap-x-3 gap-y-3">
+            {categories.map((category, index) => (
+              <div key={index} className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] bg-white/[0.02] border border-white/5 px-3 py-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                <span className="text-white/80 font-sans">{category}</span>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </div>
   );
 }

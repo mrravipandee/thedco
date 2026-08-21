@@ -33,12 +33,12 @@ export function QuickCredibility() {
       };
 
   return (
-    <section className="bg-black text-white py-32 border-b border-white/5">
+    <section className="bg-black text-white py-20 md:py-28 border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         
         {/* Header Block */}
         <Reveal>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
             <div className="lg:col-span-8 space-y-4">
               <span className="text-xs uppercase tracking-[0.3em] text-primary">
                 QUICK CREDIBILITY

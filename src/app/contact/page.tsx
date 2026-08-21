@@ -8,7 +8,6 @@ import { SmoothScroll } from "@/components/animations/SmoothScroll";
 
 // Section Components
 import { ContactHero } from "@/components/contact/ContactHero";
-import { ConsultationIntro } from "@/components/contact/ConsultationIntro";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { ContactInfo } from "@/components/contact/ContactInfo";
 import { WhatHappensNext } from "@/components/contact/WhatHappensNext";
@@ -27,11 +26,25 @@ export default function ContactPage() {
       <MobileMenu />
 
       <main className="bg-black text-white relative min-h-screen">
+        {/* Section 1: Intro Hero */}
         <ContactHero />
-        <ConsultationIntro />
-        <ContactForm />
-        <ContactInfo />
+
+        {/* Section 2: Contact Content (Grid with info & form) */}
+        <section className="bg-black text-white py-16 md:py-24 relative border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <div className="lg:col-span-4">
+              <ContactInfo />
+            </div>
+            <div className="lg:col-span-8">
+              <ContactForm />
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3: Supporting Info */}
         <WhatHappensNext />
+
+        {/* Section 4: Final CTA */}
         <ContactClosingCTA />
       </main>
 
@@ -39,4 +52,3 @@ export default function ContactPage() {
     </SmoothScroll>
   );
 }
-

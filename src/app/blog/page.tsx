@@ -36,7 +36,7 @@ export default async function BlogIndexPage() {
       <main className="bg-black text-white relative min-h-screen">
         
         {/* Blog Hero Section */}
-        <section className="relative pt-48 pb-16 border-b border-white/5 overflow-hidden">
+        <section className="relative pt-40 pb-12 border-b border-white/5 overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
               <div className="lg:col-span-8 space-y-6">
@@ -66,7 +66,7 @@ export default async function BlogIndexPage() {
 
         {/* Featured Article Section */}
         {featuredBlog && (
-          <section className="py-16 md:py-24 border-b border-white/5">
+          <section className="py-12 md:py-16 border-b border-white/5">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
               <Reveal>
                 <div className="text-xs uppercase tracking-[0.2em] text-primary/60 font-semibold mb-6">
@@ -131,7 +131,7 @@ export default async function BlogIndexPage() {
 
         {/* Regular Articles Grid */}
         {remainingBlogs.length > 0 && (
-          <section className="py-24">
+          <section className="py-16 md:py-20">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
               <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12" staggerDelay={0.1}>
                 {remainingBlogs.map((blog) => (

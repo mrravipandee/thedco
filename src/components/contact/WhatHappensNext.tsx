@@ -34,11 +34,11 @@ export function WhatHappensNext() {
   ];
 
   return (
-    <section className="bg-black text-white py-32 relative overflow-hidden border-t border-white/5">
+    <section className="bg-black text-white py-20 md:py-24 relative overflow-hidden border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         
         {/* Section Heading */}
-        <div className="max-w-3xl mb-24">
+        <div className="max-w-3xl mb-12">
           <Reveal className="space-y-4">
             <span className="text-xs uppercase tracking-[0.35em] text-primary block font-semibold">
               THE PROCESS

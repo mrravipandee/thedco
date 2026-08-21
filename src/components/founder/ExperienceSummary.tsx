@@ -18,17 +18,17 @@ const experienceItems: ExperienceItem[] = [
   },
   {
     number: "02",
-    title: "Family Hospitality Heritage",
+    title: "1983 Family Hospitality Heritage",
     description: "Panchavati Group of Hotels, Motels and Restaurants, established in 1983.",
   },
   {
     number: "03",
-    title: "SP Jain, Global Family Business",
+    title: "SP Jain Global Family Business",
     description: "Master's degree with specialisation in strategy and succession planning.",
   },
   {
     number: "04",
-    title: "Digital Marketing and Brand Strategy",
+    title: "10+ Years Digital Marketing & Brand Strategy",
     description: "Over ten years building and running his own marketing agency.",
   },
 ];
@@ -58,13 +58,10 @@ export function ExperienceSummary() {
   };
 
   return (
-    <section className="bg-black text-white py-32 border-b border-white/5">
+    <section className="bg-black text-white py-20 md:py-28 border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Section Header */}
-        <div className="mb-20 space-y-4">
-          <span className="text-xs uppercase tracking-[0.25em] text-primary/70 font-mono">
-            02 // SUMMARY
-          </span>
+        <div className="mb-12 space-y-4">
           <h2 className="text-3xl md:text-5xl font-serif text-white tracking-tight uppercase">
             Experience Summary
           </h2>

@@ -4,59 +4,121 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { Reveal } from "@/components/motion/Reveal";
-import { LineReveal } from "@/components/motion/LineReveal";
-import { TextReveal } from "@/components/motion/TextReveal";
 
 export function ClosingCTA() {
   const preferReduced = useReducedMotion();
 
+  const fadeUp = {
+    initial: { opacity: 0, y: 24 },
+    animate: { opacity: 1, y: 0 },
+  };
+
   return (
-    <section className="bg-black text-white py-48 relative overflow-hidden flex flex-col justify-center items-center text-center border-b border-white/5">
-      <div className="max-w-5xl mx-auto px-6 md:px-12 space-y-12">
-        <Reveal>
-          <span className="text-xs uppercase tracking-[0.3em] text-primary block font-semibold">
-            LET&apos;S WORK
+    <section className="relative overflow-hidden border-b border-white/5 bg-black text-white">
+      <div className="mx-auto flex max-w-6xl flex-col items-center px-6 py-24 text-center sm:px-8 md:py-28 lg:px-12">
+
+        {/* Eyebrow */}
+        <motion.span
+          {...fadeUp}
+          transition={
+            preferReduced
+              ? { duration: 0 }
+              : { duration: 0.6, ease: "easeOut" }
+          }
+          className="block text-xs font-semibold uppercase tracking-[0.3em] text-primary"
+        >
+          LET&apos;S WORK
+        </motion.span>
+
+        {/* Gold divider */}
+        <motion.div
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: 80, opacity: 1 }}
+          transition={
+            preferReduced
+              ? { duration: 0 }
+              : { duration: 0.7, delay: 0.15, ease: "easeOut" }
+          }
+          className="mt-7 h-px bg-primary/60"
+        />
+
+        {/* Main heading */}
+        <motion.h2
+          initial={preferReduced ? false : { opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={
+            preferReduced
+              ? { duration: 0 }
+              : { duration: 0.8, delay: 0.3, ease: "easeOut" }
+          }
+          className="mt-10 max-w-4xl font-serif text-4xl uppercase leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+        >
+          <span className="block">Let&apos;s Build a</span>
+
+          <span className="block text-primary">
+            More Profitable
           </span>
-        </Reveal>
 
-        {/* Gold Divider */}
-        <LineReveal className="bg-primary/60 w-20 mx-auto" delay={0.2} />
+          <span className="block">
+            Hospitality Business
+          </span>
 
-        {/* Cinematic Stacked H2 */}
-        <h2 className="text-4xl sm:text-6xl md:text-8xl font-serif tracking-tight leading-[1.05] uppercase max-w-4xl mx-auto flex flex-col">
-          <TextReveal text="Let&apos;s Build a" delay={0.3} />
-          <TextReveal text="More Profitable" className="text-primary" delay={0.5} />
-          <TextReveal text="Hospitality Business" delay={0.7} />
-          <TextReveal text="Together" delay={0.9} />
-        </h2>
+          <span className="block">
+            Together
+          </span>
+        </motion.h2>
 
-        {/* Subtext */}
-        <Reveal delay={1.0}>
-          <p className="text-sm md:text-base text-white/60 leading-relaxed font-sans max-w-2xl mx-auto">
-            THEDCO partners with hotel and restaurant owners, and the investors backing them, to build businesses that perform, financially and operationally.
-          </p>
-        </Reveal>
+        {/* Supporting copy */}
+        <motion.p
+          initial={preferReduced ? false : { opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={
+            preferReduced
+              ? { duration: 0 }
+              : { duration: 0.7, delay: 0.6, ease: "easeOut" }
+          }
+          className="mt-9 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base"
+        >
+          THEDCO partners with hotel and restaurant owners, and the
+          investors backing them, to build businesses that perform,
+          financially and operationally.
+        </motion.p>
 
-        {/* Consultation CTA button */}
-        <div className="pt-6 flex flex-col items-center space-y-6">
-          <Reveal delay={1.2}>
-            <motion.div
-              whileHover={preferReduced ? {} : { y: -3 }}
-              className="inline-block"
+        {/* CTA */}
+        <motion.div
+          initial={preferReduced ? false : { opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={
+            preferReduced
+              ? { duration: 0 }
+              : { duration: 0.7, delay: 0.8, ease: "easeOut" }
+          }
+          className="mt-10"
+        >
+          <motion.div
+            whileHover={preferReduced ? {} : { y: -3 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center border border-white px-10 py-4 text-xs font-semibold uppercase tracking-[0.25em] text-white transition-all duration-300 hover:border-primary hover:bg-primary hover:text-black sm:px-12 sm:py-5"
             >
-              <Link
-                href="/contact"
-                className="inline-block text-xs uppercase tracking-[0.25em] bg-transparent text-white border border-white hover:border-primary hover:bg-primary hover:text-black px-12 py-5 transition-all duration-300 font-semibold cursor-pointer"
-              >
-                Book a Consultation
-              </Link>
-            </motion.div>
-          </Reveal>
-          
-          {/* Subtle gold accent line underneath CTA button */}
-          <LineReveal className="bg-primary/45 w-32" delay={1.3} />
-        </div>
+              Book a Consultation
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* Bottom accent */}
+        <motion.div
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: 128, opacity: 1 }}
+          transition={
+            preferReduced
+              ? { duration: 0 }
+              : { duration: 0.7, delay: 1, ease: "easeOut" }
+          }
+          className="mt-7 h-px bg-primary/40"
+        />
       </div>
     </section>
   );

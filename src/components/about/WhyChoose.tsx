@@ -65,7 +65,7 @@ export function WhyChoose() {
       };
 
   return (
-    <section className="bg-black text-white py-32 border-b border-white/5 relative">
+    <section className="bg-black text-white py-20 md:py-28 border-b border-white/5 relative">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
@@ -87,7 +87,7 @@ export function WhyChoose() {
               <Reveal key={item.num} className="w-full">
                 <motion.div
                   whileHover="hover"
-                  className="why-item group flex items-start space-x-6 md:space-x-8 py-8 border-b border-white/5 cursor-pointer transition-all duration-300 hover:!opacity-100"
+                  className="why-item group flex items-start space-x-6 md:space-x-8 py-6 border-b border-white/5 cursor-pointer transition-all duration-300 hover:!opacity-100"
                 >
                   {/* Large Number indicator */}
                   <motion.span

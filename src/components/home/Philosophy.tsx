@@ -14,7 +14,7 @@ export function Philosophy() {
     <div className="bg-black text-white space-y-0">
       
       {/* SECTION 5: FOUNDER'S NOTE */}
-      <section className="py-32 border-b border-white/5 relative overflow-hidden">
+      <section className="py-20 md:py-28 border-b border-white/5 relative overflow-hidden">
         {/* Subtle large background branding */}
         <div className="absolute right-[-2%] bottom-[-5%] select-none pointer-events-none font-serif text-[15vw] leading-none text-white/[0.01] z-0 font-bold">
           THEDCO
@@ -25,7 +25,7 @@ export function Philosophy() {
           <div className="lg:col-span-4">
             <Reveal className="space-y-4">
               <span className="text-xs uppercase tracking-[0.3em] text-primary">
-                SECTION 5 — FOUNDER&apos;S NOTE
+                FOUNDER&apos;S NOTE
               </span>
               <h2 className="text-3xl md:text-4xl font-serif tracking-tight leading-tight">
                 A Note from the Founder
@@ -86,12 +86,12 @@ export function Philosophy() {
       </section>
 
       {/* SECTION 6: TESTIMONIALS */}
-      <section className="py-32 border-b border-white/5 relative overflow-hidden">
+      <section className="py-20 md:py-28 border-b border-white/5 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-16">
           <div className="lg:col-span-4">
             <Reveal className="space-y-4">
               <span className="text-xs uppercase tracking-[0.3em] text-primary">
-                SECTION 6 — TESTIMONIALS
+                TESTIMONIALS
               </span>
               <h2 className="text-3xl md:text-4xl font-serif tracking-tight leading-tight">
                 What Our Clients Say

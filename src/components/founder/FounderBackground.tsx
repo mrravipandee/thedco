@@ -33,7 +33,7 @@ export function FounderBackground() {
   };
 
   return (
-    <section className="relative bg-black text-white py-32 border-b border-white/5 overflow-hidden">
+    <section className="relative bg-black text-white py-20 md:py-28 border-b border-white/5 overflow-hidden">
       {/* Large subtle background typography for "1983" (establishment of Panchavati Group) */}
       <div className="absolute right-[-5%] bottom-[-5%] select-none pointer-events-none font-serif text-[18vw] leading-none text-white/[0.015] z-0 font-bold">
         1983
@@ -42,7 +42,7 @@ export function FounderBackground() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
-          {/* Left Column: Heading and Number */}
+          {/* Left Column: Heading and Highlight */}
           <div className="lg:col-span-5 space-y-6">
             <motion.div
               initial="hidden"
@@ -51,14 +51,25 @@ export function FounderBackground() {
               variants={sectionReveal}
               className="space-y-4"
             >
-              <div className="text-xs uppercase tracking-[0.25em] text-primary/70 font-mono">
-                01 // BACKGROUND
-              </div>
               <h2 className="text-3xl md:text-5xl font-serif text-white tracking-tight uppercase leading-[1.15]">
                 A Foundation Built on Real Experience
               </h2>
             </motion.div>
             
+            {/* Typographic Statement highlight */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={sectionReveal}
+              className="pt-4 flex items-baseline space-x-4"
+            >
+              <span className="text-6xl md:text-8xl font-serif text-primary font-bold">12+</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-white/50 font-sans font-semibold leading-relaxed">
+                Years of Active <br /> Advisory & Operations
+              </span>
+            </motion.div>
+
             {/* Subtle editorial line */}
             <motion.div
               initial={{ scaleX: 0 }}

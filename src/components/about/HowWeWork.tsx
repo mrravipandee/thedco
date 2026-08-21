@@ -60,7 +60,7 @@ export function HowWeWork() {
   return (
     <section
       ref={containerRef}
-      className="bg-black text-white relative border-b border-white/5 py-32"
+      className="bg-black text-white relative border-b border-white/5 py-20 md:py-28"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
@@ -90,7 +90,7 @@ export function HowWeWork() {
           </div>
 
           {/* Right Column: Scrolling items */}
-          <div className="col-span-12 lg:col-span-7 space-y-16 lg:space-y-32">
+          <div className="col-span-12 lg:col-span-7 space-y-12 lg:space-y-20">
             {PRINCIPLES.map((item, idx) => {
               const isActive = activeIndex === idx;
               return (

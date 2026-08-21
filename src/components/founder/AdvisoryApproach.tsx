@@ -59,21 +59,18 @@ export function AdvisoryApproach() {
   };
 
   return (
-    <section className="bg-black text-white py-32 border-b border-white/5">
+    <section className="bg-black text-white py-20 md:py-28 border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         
         {/* Section Header */}
-        <div className="mb-16 space-y-4">
-          <span className="text-xs uppercase tracking-[0.25em] text-primary/70 font-mono">
-            03 // APPROACH
-          </span>
+        <div className="mb-10 space-y-4">
           <h2 className="text-3xl md:text-5xl font-serif text-white tracking-tight uppercase">
             What Guides Manav&apos;s Advisory Approach
           </h2>
         </div>
 
         {/* Big Quote Block */}
-        <div className="mb-24 space-y-8">
+        <div className="mb-16 space-y-8">
           <motion.blockquote
             custom={0.1}
             initial="hidden"

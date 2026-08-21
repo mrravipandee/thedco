@@ -21,7 +21,7 @@ export function FounderCTA() {
   };
 
   return (
-    <section className="bg-black text-white py-36 relative overflow-hidden flex flex-col justify-center items-center text-center border-b border-white/5">
+    <section className="bg-black text-white py-24 md:py-32 relative overflow-hidden flex flex-col justify-center items-center text-center border-b border-white/5">
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -30,7 +30,7 @@ export function FounderCTA() {
         className="max-w-5xl mx-auto px-6 md:px-12 space-y-12"
       >
         <span className="text-xs uppercase tracking-[0.3em] text-primary block font-semibold">
-          05 // COLLABORATION
+          COLLABORATION
         </span>
 
         {/* Cinematic Headline Climax */}

@@ -83,7 +83,7 @@ export default function ServicesPage() {
       <main className="bg-black text-white relative min-h-screen">
         
         {/* Services Hero Section */}
-        <section className="relative pt-48 pb-32 border-b border-white/5 overflow-hidden">
+        <section className="relative pt-40 pb-16 border-b border-white/5 overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
               <div className="lg:col-span-8 space-y-8">
@@ -118,7 +118,7 @@ export default function ServicesPage() {
         </section>
 
         {/* Detailed Services List */}
-        <section className="py-24 md:py-32">
+        <section className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-6 md:px-12">
             <div className="space-y-0">
               {SERVICES_DETAILED.map((service, index) => (
@@ -166,7 +166,7 @@ export default function ServicesPage() {
         </section>
 
         {/* Services Closing CTA */}
-        <section className="bg-black py-32 text-center border-t border-white/5">
+        <section className="bg-black py-20 md:py-24 text-center border-t border-white/5">
           <div className="max-w-4xl mx-auto px-6 space-y-8">
             <Reveal>
               <h2 className="text-3xl md:text-5xl font-serif text-white tracking-tight uppercase leading-snug">

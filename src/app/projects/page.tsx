@@ -36,7 +36,7 @@ export default async function ProjectsPage() {
       <main className="bg-black text-white relative min-h-screen">
         
         {/* Projects Hero Section */}
-        <section className="relative pt-48 pb-16 border-b border-white/5 overflow-hidden">
+        <section className="relative pt-40 pb-12 border-b border-white/5 overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
               <div className="lg:col-span-8 space-y-6">
@@ -65,7 +65,7 @@ export default async function ProjectsPage() {
         </section>
 
         {/* Portfolio Listing Grid */}
-        <section className="py-24 md:py-32">
+        <section className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-6 md:px-12">
             {projects.length === 0 ? (
               <Reveal>

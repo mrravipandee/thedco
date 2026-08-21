@@ -94,13 +94,13 @@ export function HowWeHelp() {
   }, [preferReduced]);
 
   return (
-    <section ref={containerRef} className="bg-black text-white py-32 border-b border-white/5 relative">
+    <section ref={containerRef} className="bg-black text-white py-20 md:py-28 border-b border-white/5 relative">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         
         {/* Header Block */}
-        <div className="max-w-2xl mb-24 space-y-6">
+        <div className="max-w-2xl mb-16 space-y-6">
           <span className="text-xs uppercase tracking-[0.3em] text-primary">
-            SECTION 4 — HOW WE HELP
+            THE PROCESS
           </span>
           <h2 className="text-3xl md:text-5xl font-serif tracking-tight leading-tight">
             How We Help
@@ -111,7 +111,7 @@ export function HowWeHelp() {
         </div>
 
         {/* Steps Timeline Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 relative mb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 relative mb-20">
           {/* Vertical progress line container (Desktop only) */}
           <div className="hidden lg:block lg:col-span-1 relative justify-self-center">
             <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-white/10 -translate-x-1/2" />
@@ -164,7 +164,7 @@ export function HowWeHelp() {
         {/* Closing Statement */}
         <div
           ref={closingRef}
-          className="max-w-4xl mx-auto border-t border-primary/20 pt-16 mt-16 text-center space-y-6"
+          className="max-w-4xl mx-auto border-t border-primary/20 pt-12 mt-12 text-center space-y-6"
         >
           <span className="text-xs uppercase tracking-[0.3em] text-primary">
             Our Commitment

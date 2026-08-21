@@ -13,11 +13,11 @@ export function BrandsVentures() {
   const [isPaused, setIsPaused] = useState(false);
 
   return (
-    <section className="bg-black text-white py-32 border-b border-white/5 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-16">
+    <section className="bg-black text-white py-20 md:py-24 border-b border-white/5 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-12">
         <Reveal>
           <span className="text-xs uppercase tracking-[0.3em] text-primary block mb-4">
-            SECTION 7 — BRANDS AND VENTURES
+            BRANDS AND VENTURES
           </span>
           <h2 className="text-3xl md:text-5xl font-serif tracking-tight leading-tight max-w-xl">
             Brands and Ventures We&apos;ve Worked With

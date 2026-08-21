@@ -61,8 +61,8 @@ export function ContactForm() {
 
   if (submitStatus === "success") {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-24 text-center space-y-8 animate-fade-in">
-        <span className="text-xs uppercase tracking-[0.35em] text-primary block font-semibold">
+      <div className="w-full text-center space-y-8 py-16 animate-fade-in">
+        <span className="text-xs uppercase tracking-[0.35em] text-primary block font-semibold font-sans">
           THANK YOU
         </span>
         <h2 className="text-4xl sm:text-5xl font-serif uppercase tracking-tight text-white leading-tight">
@@ -84,7 +84,7 @@ export function ContactForm() {
   }
 
   return (
-    <div id="contact-form" className="max-w-7xl mx-auto px-6 md:px-12 py-24 scroll-mt-24">
+    <div id="contact-form" className="scroll-mt-24">
       {submitStatus === "error" && (
         <div className="mb-12 p-6 border border-red-500/20 bg-red-950/20 text-white max-w-3xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 animate-fade-in">
           <div className="space-y-1">
@@ -100,7 +100,7 @@ export function ContactForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl mx-auto space-y-16">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-12">
         {/* Honeypot hidden input */}
         <div className="hidden aria-hidden:true">
           <label htmlFor="website">Leave this field blank if you are a human</label>

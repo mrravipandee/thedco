@@ -7,8 +7,8 @@ import { Stagger } from "@/components/motion/Stagger";
 
 export function WhoWeAre() {
   return (
-    <section className="bg-black text-white py-32 border-b border-white/5 relative">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 space-y-24">
+    <section className="bg-black text-white py-20 md:py-28 border-b border-white/5 relative">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 space-y-16">
         
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
@@ -42,7 +42,7 @@ export function WhoWeAre() {
         </div>
 
         {/* Real Data Block */}
-        <div className="max-w-4xl mx-auto pt-12">
+        <div className="max-w-4xl mx-auto pt-8">
           <Reveal className="text-center space-y-4">
             <span className="text-xs uppercase tracking-[0.3em] text-primary block font-semibold">
               REAL DATA
@@ -50,7 +50,7 @@ export function WhoWeAre() {
             <LineReveal className="bg-primary/45 w-full max-w-md mx-auto" delay={0.1} />
           </Reveal>
 
-          <Stagger className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 mt-8 text-center max-w-3xl mx-auto" staggerDelay={0.15}>
+          <Stagger className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 mt-6 text-center max-w-3xl mx-auto" staggerDelay={0.15}>
             <Reveal className="space-y-2">
               <span className="block text-white/50 text-[10px] uppercase tracking-widest font-sans">01</span>
               <h4 className="text-lg md:text-xl font-serif text-white">Sales Reports</h4>
@@ -67,7 +67,7 @@ export function WhoWeAre() {
         </div>
 
         {/* Final Sentence Block */}
-        <div className="max-w-4xl mx-auto text-center pt-8 space-y-8">
+        <div className="max-w-4xl mx-auto text-center pt-6 space-y-6">
           <Reveal>
             <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
               Every recommendation we make is based on real data, sales reports, expense tracking and direct observation on site, not on templates.

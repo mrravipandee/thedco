@@ -40,10 +40,18 @@ export function Footer() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs uppercase tracking-[0.2em] text-primary">Inquiries</h4>
-            <p className="text-xs uppercase tracking-[0.15em] text-white/60 mb-2">
-              advisory@thedco.com
+            <h4 className="text-xs uppercase tracking-[0.2em] text-primary">
+              Inquiries
+            </h4>
+
+            <p className="text-xs tracking-[0.15em] text-white/60 mb-2">
+              hello@thedco.in
             </p>
+
+            <p className="text-xs tracking-[0.15em] text-white/60 mb-2">
+              +91 86004 11200
+            </p>
+
             <Link
               href="/contact"
               className="inline-block text-xs uppercase tracking-[0.25em] text-primary border-b border-primary/30 hover:border-primary pb-1 transition-all duration-300 w-fit"
