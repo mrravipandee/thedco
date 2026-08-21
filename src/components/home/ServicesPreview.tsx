@@ -3,12 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
-
-gsap.registerPlugin(ScrollTrigger);
+import { Reveal } from "@/components/motion/Reveal";
 
 const SERVICES = [
   {
@@ -18,7 +14,7 @@ const SERVICES = [
   },
   {
     title: "Restaurant Advisory",
-    description: "Menu engineering, kitchen planning, food cost control and restaurant profitability.",
+    description: "Menu engineering, kitchen planning, food food cost control and restaurant profitability.",
     image: "/images/services/fine-dining.jpg",
   },
   {
@@ -61,28 +57,32 @@ const SERVICES = [
 export function ServicesPreview() {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const preferReduced = useReducedMotion();
 
   useEffect(() => {
-    if (preferReduced) return;
+    const observerOptions = {
+      root: null,
+      rootMargin: "-45% 0px -45% 0px", // Active zone around the center of the viewport
+      threshold: 0,
+    };
 
-    const ctx = gsap.context(() => {
-      const items = containerRef.current?.querySelectorAll(".service-item");
-      if (items) {
-        items.forEach((item, idx) => {
-          ScrollTrigger.create({
-            trigger: item,
-            start: "top 45%",
-            end: "bottom 45%",
-            onEnter: () => setActiveIndex(idx),
-            onEnterBack: () => setActiveIndex(idx),
-          });
-        });
-      }
-    }, containerRef);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = Number(entry.target.getAttribute("data-index"));
+          setActiveIndex(index);
+        }
+      });
+    }, observerOptions);
 
-    return () => ctx.revert();
-  }, [preferReduced]);
+    const items = containerRef.current?.querySelectorAll(".service-item");
+    if (items) {
+      items.forEach((item) => observer.observe(item));
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <section ref={containerRef} className="bg-black text-white py-32 border-b border-white/5 relative">
@@ -90,7 +90,7 @@ export function ServicesPreview() {
         
         {/* Left: Sticky Block (Desktop only) */}
         <div className="lg:col-span-5 lg:sticky lg:top-32 lg:h-fit self-start flex flex-col justify-between space-y-12">
-          <div className="space-y-6">
+          <Reveal className="space-y-6">
             <span className="text-xs uppercase tracking-[0.3em] text-primary">
               SECTION 3 — WHAT WE OFFER
             </span>
@@ -100,7 +100,7 @@ export function ServicesPreview() {
             <p className="text-sm text-white/50 leading-relaxed font-sans max-w-md">
               Nine advisory practices delivered under one team, so a client works with a single point of contact across the engagement.
             </p>
-          </div>
+          </Reveal>
 
           {/* Active Image Showcase Slot */}
           <div className="hidden lg:block relative w-full h-[35vh] overflow-hidden border border-white/10">
@@ -121,7 +121,7 @@ export function ServicesPreview() {
                 />
               </div>
             ))}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
           </div>
         </div>
 
@@ -134,6 +134,7 @@ export function ServicesPreview() {
             return (
               <div
                 key={service.title}
+                data-index={idx}
                 className={cn(
                   "service-item border-t border-white/10 py-12 transition-all duration-500 flex flex-col space-y-4",
                   isActive ? "text-white opacity-100" : "text-white/40 opacity-40"
@@ -166,13 +167,16 @@ export function ServicesPreview() {
               </div>
             );
           })}
+          
           <div className="border-t border-white/10 pt-12">
-            <Link
-              href="/services"
-              className="inline-block text-xs uppercase tracking-[0.25em] text-primary border border-primary/30 hover:border-primary px-8 py-4 transition-all duration-300"
-            >
-              View Full Service List
-            </Link>
+            <Reveal>
+              <Link
+                href="/services"
+                className="inline-block text-xs uppercase tracking-[0.25em] text-primary border border-primary/30 hover:border-primary px-8 py-4 transition-all duration-300 cursor-pointer"
+              >
+                View Full Service List
+              </Link>
+            </Reveal>
           </div>
         </div>
       </div>

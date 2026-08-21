@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React from "react";
+import { motion } from "motion/react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-
-gsap.registerPlugin(ScrollTrigger);
+import { Reveal } from "@/components/motion/Reveal";
+import { Stagger } from "@/components/motion/Stagger";
 
 const POINTS = [
   {
@@ -51,102 +50,66 @@ const POINTS = [
 ];
 
 export function WhyChoose() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
   const preferReduced = useReducedMotion();
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      if (preferReduced) {
-        gsap.set(headingRef.current, { opacity: 1, y: 0 });
-        gsap.set(".why-item", { opacity: 0.7, y: 0 });
-        return;
-      }
+  const textHover = preferReduced
+    ? undefined
+    : {
+        hover: { x: 8, transition: { duration: 0.3, ease: "easeOut" as const } },
+      };
 
-      // Heading Reveal
-      gsap.fromTo(
-        headingRef.current,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: headingRef.current,
-            start: "top 80%",
-          },
-        }
-      );
-
-      // Staggered reveal of list items
-      const items = listRef.current?.querySelectorAll(".why-item");
-      if (items) {
-        gsap.fromTo(
-          items,
-          { opacity: 0, y: 25 },
-          {
-            opacity: 0.7, // Target inactive resting state opacity
-            y: 0,
-            duration: 0.8,
-            stagger: 0.08,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: listRef.current,
-              start: "top 75%",
-            },
-          }
-        );
-      }
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, [preferReduced]);
+  const numberHover = preferReduced
+    ? undefined
+    : {
+        hover: { color: "#C9A24A", transition: { duration: 0.3 } },
+      };
 
   return (
-    <section
-      ref={containerRef}
-      className="bg-black text-white py-32 border-b border-white/5 relative"
-    >
+    <section className="bg-black text-white py-32 border-b border-white/5 relative">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
           {/* Left Column: Heading */}
-          <div ref={headingRef} className="lg:col-span-5 lg:sticky lg:top-32 self-start space-y-4">
-            <span className="text-xs uppercase tracking-[0.3em] text-primary block font-semibold">
-              CREDIBILITY
-            </span>
-            <h2 className="text-3xl md:text-5xl font-serif text-white tracking-tight uppercase leading-tight">
-              Why Choose THEDCO
-            </h2>
+          <div className="lg:col-span-5 lg:sticky lg:top-32 self-start space-y-4">
+            <Reveal>
+              <span className="text-xs uppercase tracking-[0.3em] text-primary block font-semibold">
+                CREDIBILITY
+              </span>
+              <h2 className="text-3xl md:text-5xl font-serif text-white tracking-tight uppercase leading-tight">
+                Why Choose THEDCO
+              </h2>
+            </Reveal>
           </div>
 
           {/* Right Column: Numbered List */}
-          <div ref={listRef} className="lg:col-span-7 flex flex-col">
+          <Stagger className="lg:col-span-7 flex flex-col" staggerDelay={0.06}>
             {POINTS.map((item) => (
-              <div
-                key={item.num}
-                className="why-item group flex items-start space-x-6 md:space-x-8 py-8 border-b border-white/5 cursor-pointer transition-all duration-300 hover:!opacity-100 hover:translate-x-2.5"
-                style={{ opacity: preferReduced ? 1 : undefined }}
-              >
-                {/* Large Number indicator */}
-                <span className="text-lg md:text-xl font-serif text-white/40 group-hover:text-primary transition-colors duration-300 mt-1">
-                  {item.num}
-                </span>
+              <Reveal key={item.num} className="w-full">
+                <motion.div
+                  whileHover="hover"
+                  className="why-item group flex items-start space-x-6 md:space-x-8 py-8 border-b border-white/5 cursor-pointer transition-all duration-300 hover:!opacity-100"
+                >
+                  {/* Large Number indicator */}
+                  <motion.span
+                    variants={numberHover}
+                    className="text-lg md:text-xl font-serif text-white/40 transition-colors duration-300 mt-1"
+                  >
+                    {item.num}
+                  </motion.span>
 
-                {/* Content block */}
-                <div className="space-y-2 flex-grow">
-                  <h3 className="text-lg md:text-xl font-serif uppercase tracking-wider text-white leading-snug">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-white/50 group-hover:text-white/80 transition-colors duration-300 leading-relaxed font-sans max-w-xl">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
+                  {/* Content block */}
+                  <motion.div variants={textHover} className="space-y-2 flex-grow">
+                    <h3 className="text-lg md:text-xl font-serif uppercase tracking-wider text-white leading-snug">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-white/50 group-hover:text-white/80 transition-colors duration-300 leading-relaxed font-sans max-w-xl">
+                      {item.desc}
+                    </p>
+                  </motion.div>
+                </motion.div>
+              </Reveal>
             ))}
-          </div>
+          </Stagger>
 
         </div>
       </div>
