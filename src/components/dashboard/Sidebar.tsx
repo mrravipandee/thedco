@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Compass,
   FileText,
+  BookOpen,
   Settings,
 } from "lucide-react";
 
@@ -45,6 +46,7 @@ export const navigationSections: NavigationSection[] = [
     items: [
       { label: "Services", href: "/dashboard/services", icon: Compass },
       { label: "Blog", href: "/dashboard/blog", icon: FileText },
+      { label: "Case Studies", href: "/dashboard/case-studies", icon: BookOpen },
     ],
   },
 ];
