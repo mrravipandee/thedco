@@ -1,18 +1,57 @@
+"use client";
+
 import React from "react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { RecentInquiries } from "@/components/dashboard/RecentInquiries";
+import { ActiveProjects } from "@/components/dashboard/ActiveProjects";
+import { BusinessOverview } from "@/components/dashboard/BusinessOverview";
+import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { mockStats } from "@/data/dashboard";
 
 export default function DashboardOverviewPage() {
+  const prefersReduced = useReducedMotion();
+
   return (
-    <div className="space-y-6">
-      <div className="border border-white/5 bg-[#050505] p-8 md:p-12 rounded-sm max-w-4xl">
-        <h2 className="text-2xl font-serif text-white mb-4 tracking-wide">
-          Welcome to the THEDCO Workspace
-        </h2>
-        <p className="text-sm text-white/50 font-sans leading-relaxed max-w-2xl">
-          This admin console serves as the core hub for THEDCO&apos;s hospitality advisory systems.
-          Use the sidebar navigation to manage business inquiries, clients, projects, services, 
-          and content areas.
-        </p>
+    <motion.div
+      initial={{ opacity: 0, y: prefersReduced ? 0 : 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: prefersReduced ? 0.05 : 0.6,
+        ease: [0.16, 1, 0.3, 1] as const,
+      }}
+      className="space-y-8 pb-12"
+    >
+      {/* 1. Header Section */}
+      <DashboardHeader />
+
+      {/* 2. Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {mockStats.map((stat, idx) => (
+          <StatCard
+            key={stat.id}
+            index={idx}
+            label={stat.label}
+            value={stat.value}
+            change={stat.change}
+          />
+        ))}
       </div>
-    </div>
+
+      {/* 3. Middle Section: Recent Inquiries & Active Projects */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentInquiries />
+        <ActiveProjects />
+      </div>
+
+      {/* 4. Lower Section: Business Overview & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <BusinessOverview />
+        <RecentActivity />
+      </div>
+    </motion.div>
   );
 }
+
